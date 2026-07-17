@@ -4,7 +4,7 @@
 // sync is paused, and offer a "Retry" button. Tap-to-dismiss. Mounted from
 // App.vue.
 //
-// Epicrolla also used this banner for a conflict-merge coin bonus ("we
+// midnight-analog also used this banner for a conflict-merge coin bonus ("we
 // restored your bigger cloud save, here's +N coins"). Midnight Analog has no
 // currency to pay a consolation bonus in, so the merge policy just picks the
 // higher save and this banner is offline-only.

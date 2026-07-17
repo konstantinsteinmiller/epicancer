@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { prependBaseUrl } from '@/utils/function'
 
-// Epicrolla draws all gameplay art programmatically (via Canvas 2D)
+// midnight-analog draws all gameplay art programmatically (via Canvas 2D)
 // and uses inline SVG for HUD icons, so the asset preloader is intentionally
 // empty. SFX are decoded on first play (see `useSound.ts`); the splash
 // screen exits as soon as the JS bundle is parsed.

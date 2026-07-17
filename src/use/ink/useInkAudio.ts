@@ -23,6 +23,7 @@
 // AND stops scheduled voices. `isAudioSuspended()` is checked before a voice
 // is even created, mirroring `useSound.playSound`. See `installInkAudioGate`.
 
+import { watch } from 'vue'
 import { getAudioContext, isAudioSuspended } from '@/use/useAssets'
 import { onPauseChange } from '@/use/useGamePause'
 import { isMobileAudioMuted } from '@/use/useMobileAudioMute'
@@ -1168,27 +1169,52 @@ export const stopAllInkLoops = (): void => {
 let gateInstalled = false
 
 /**
- * Wire the master bus to the pause gate. Idempotent; call once at scene mount.
+ * Wire the master bus to the pause gate AND the mute state. Idempotent; call
+ * once at scene mount.
  *
- * `useAssets.suspendAllAudio` already suspends the AudioContext when an ad
- * opens, which freezes these voices — but a suspended context RESUMES with its
- * loops still running, and a rewarded ad that fires no resume callback would
+ * Pause: `useAssets.suspendAllAudio` already suspends the AudioContext when an
+ * ad opens, which freezes these voices — but a suspended context RESUMES with
+ * its loops still running, and a rewarded ad that fires no resume callback would
  * leave the mosquito whining under the ad. Zeroing the master gain on pause is
  * belt-and-braces: even if the context stays live, nothing is audible.
+ *
+ * Mute: the per-voice `vol()` already reads `userSoundVolume`, so a NEW one-shot
+ * created after the player mutes is silent. But a LOOP that was already running
+ * (the mosquito whine, the Saiyan roar, the rain) set its gain once and keeps
+ * playing — the FMuteButton would leave it audible. So the master gain is also
+ * gated on mute here: hitting mute mid-game silences everything, loops included,
+ * in one place.
  */
 export const installInkAudioGate = (): (() => void) => {
   if (gateInstalled) return () => {}
   gateInstalled = true
-  const off = onPauseChange((paused) => {
+
+  let paused = false
+  const { userSoundVolume } = useUser()
+
+  const applyMaster = (): void => {
     const b = bus()
     if (!b) return
     const now = b.ctx.currentTime
-    // Immediate, not ramped: an ad's first frame must already be silent.
+    const muted = paused
+      || isMobileAudioMuted.value
+      || (userSoundVolume.value ?? 1) <= 0
+    // Immediate, not ramped: an ad's (or a mute's) first frame must be silent.
     b.out.gain.cancelScheduledValues(now)
-    b.out.gain.setValueAtTime(paused ? 0 : 1, now)
-  })
+    b.out.gain.setValueAtTime(muted ? 0 : 1, now)
+  }
+
+  const off = onPauseChange((p) => { paused = p; applyMaster() })
+  // Desktop mute zeroes `userSoundVolume`; mobile flips `isMobileAudioMuted`.
+  // Either one must re-drive the master so running loops go silent too.
+  const stopWatch = watch(
+    [() => userSoundVolume.value, () => isMobileAudioMuted.value],
+    applyMaster
+  )
+
   return () => {
     off()
+    stopWatch()
     gateInstalled = false
   }
 }

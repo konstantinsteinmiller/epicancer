@@ -66,7 +66,7 @@ export interface SnapshotReader {
  *   - apply the chosen side's keys to local
  *   - schedule a flush back to remote when the chosen side is local
  *
- * Epicrolla softened a remote-wins loss by paying the player bonus coins.
+ * midnight-analog softened a remote-wins loss by paying the player bonus coins.
  * Midnight Analog has no currency to pay them in — a lost save costs a
  * high-score line, not a purse — so a losing side is simply overwritten.
  */

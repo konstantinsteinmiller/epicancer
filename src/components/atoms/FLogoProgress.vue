@@ -1,6 +1,10 @@
 <template lang="pug">
   Transition(name="splash-fade")
     div.splash-backdrop.no-os-ui(v-if="!backdropHidden")
+      //- The same drifting 3AM-desk doodles the game uses, so the world the
+      //- player lands in is already on screen while the assets load. Generated
+      //- once at runtime (shared cache with GameScene) — see `deskBackdrop.ts`.
+      div.splash-tiles(:style="{ backgroundImage: tileBg }")
 
   //- Logo only renders during the loading sequence. Once `done` flips
   //- true (progress = 100% OR the 4s fallback fires), the logo fades out
@@ -33,6 +37,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useAssets from '@/use/useAssets'
+import { generateDeskTile } from '@/use/ink/deskBackdrop'
 import { prependBaseUrl } from '@/utils/function'
 import { stopLoading } from '@/use/useCrazyGames'
 import { armFirstLoadInterstitial, notifySplashGone } from '@/use/useFirstLoadInterstitial'
@@ -61,6 +66,13 @@ if (import.meta.env.VITE_APP_GAMEPIX === 'true') {
 
 const done = ref(false)
 const backdropHidden = ref(false)
+// CSS `url(...)` for the drifting desk-doodle backdrop (empty until baked;
+// wrapped so a canvas hiccup can never block the splash from showing).
+const tileBg = ref('')
+try {
+  const tile = generateDeskTile()
+  if (tile) tileBg.value = `url("${tile}")`
+} catch { /* flat dark desk fallback */ }
 const showStuckHint = ref(false)
 let stuckHintId: number | null = null
 
@@ -217,10 +229,28 @@ watch(done, (isDone) => {
   position: fixed
   inset: 0
   z-index: 150
-  background-color: #0d2a18
-  background-image: url('/images/bg/bg-tile_400x400.webp')
+  overflow: hidden
+  background-color: #0a0d1c
+
+.splash-tiles
+  position: absolute
+  // Overhang a full tile on every side so the drift never exposes an edge.
+  inset: -680px
   background-repeat: repeat
-  background-size: 400px 400px
+  background-size: 640px 640px
+  // The same slow diagonal creep as the in-game desk.
+  animation: deskDrift 140s linear infinite
+  will-change: transform
+
+@keyframes deskDrift
+  from
+    transform: translate(0, 0)
+  to
+    transform: translate(640px, 640px)
+
+@media (prefers-reduced-motion: reduce)
+  .splash-tiles
+    animation: none
 
 .splash-fade-leave-active
   transition: opacity 0.4s ease-out

@@ -13,6 +13,8 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useInkCanvas } from '@/use/ink/useInkCanvas'
 import { drawPaper } from '@/use/ink/paper'
+import { generateDeskTile } from '@/use/ink/deskBackdrop'
+import FMuteButton from '@/components/atoms/FMuteButton.vue'
 import {
   installInkAudioGate, bassThump, chime, sourBuzz, stopAllInkLoops, tick,
   inkDrop, rainAmbience, penClick, type Loop
@@ -40,6 +42,7 @@ import { mosquitoSwat } from '@/use/midnight/games/mosquitoSwat'
 import { findSignal } from '@/use/midnight/games/findSignal'
 import { registerCheatHooks } from '@/use/useCheats'
 import { acquireAppPause } from '@/use/useGamePause'
+import { usePlatformGameplay } from '@/use/usePlatformGameplay'
 import { bestScore, ideasPlayed, markOnboarded, needsHint } from '@/use/useMidnightProgress'
 import useSounds from '@/use/useSound'
 import type { InkRenderer } from '@/use/ink/inkRenderer'
@@ -104,6 +107,9 @@ const diveP = ref(0)
 const DIVE_S = 1.15
 /** True when the night ended at the boss's morning rather than at zero hearts. */
 const survived = ref(false)
+/** CSS `url(...)` for the drifting desk-doodle backdrop, generated once on
+ *  mount (a runtime data URI — see `deskBackdrop.ts`). */
+const deskTileUrl = ref('')
 /** Set by the Space keydown; consumed by the sim tick so the act machine has
  *  a single place that starts a night. */
 let wakeRequested = false
@@ -112,6 +118,11 @@ const setAct = (next: Act): void => {
   act.value = next
   actT = 0
 }
+
+// Tell the active portal (CrazyGames / Playgama) when interactive gameplay is
+// running vs. interrupted. Active only during the `run` act; the driver also
+// stops it whenever an ad / tab-hide / platform pause / modal interrupts play.
+usePlatformGameplay(() => act.value === 'run')
 
 const beginDive = (): void => {
   wakeRequested = false
@@ -474,6 +485,12 @@ const onKeyDown = (e: KeyboardEvent): void => {
 
 onMounted(() => {
   releaseAudioGate = installInkAudioGate()
+  // Bake the desk-doodle tile once and hand it to CSS. Wrapped so a canvas
+  // hiccup can never block the game from booting — a flat dark desk is fine.
+  try {
+    const tile = generateDeskTile()
+    if (tile) deskTileUrl.value = `url("${tile}")`
+  } catch { /* flat dark desk fallback */ }
   readSafeArea()
   window.addEventListener('keydown', onKeyDown)
 
@@ -547,12 +564,78 @@ onUnmounted(() => {
 </script>
 
 <template lang="pug">
-  div.relative.w-full.h-full.overflow-hidden
-    canvas.block.w-full.h-full.touch-none(
-      ref="canvasRef"
-      @pointerdown="onDown"
-      @pointermove="onMove"
-      @pointerup="onUp"
-      @pointercancel="onUp"
-    )
+  //- The notebook is letterboxed to a portrait aspect and CENTRED here (see
+  //- useInkCanvas.MAX_PAGE_ASPECT). This wrapper is the "desk" the page sits on:
+  //- on a wide/landscape viewport the canvas keeps its portrait shape and the
+  //- desk fills the bars; on a phone the canvas fills the screen and the desk
+  //- is hidden behind it. The canvas sizes itself, so it carries NO w-full.
+  div.desk-scene.relative.w-full.h-full.overflow-hidden.flex.items-center.justify-center(
+    data-ink-host
+  )
+    //- A slowly-drifting field of faint 3AM doodles (generated at runtime into
+    //- `deskTileUrl`). Oversized + transform-drifted so it loops seamlessly and
+    //- stays GPU-composited. See `deskBackdrop.ts`.
+    div.desk-tiles(:style="{ backgroundImage: deskTileUrl }")
+    div.desk-vignette
+    //- Wraps the self-sizing canvas so the mute button can dock to the
+    //- notebook's own bottom-right corner, not the full viewport.
+    div.page-frame.relative
+      canvas.block.touch-none.desk-page(
+        ref="canvasRef"
+        @pointerdown="onDown"
+        @pointermove="onMove"
+        @pointerup="onUp"
+        @pointercancel="onUp"
+      )
+      div.mute-dock.absolute.z-10
+        FMuteButton
 </template>
+
+<style scoped lang="sass">
+.desk-scene
+  background: #0a0d1c
+
+.desk-tiles
+  position: absolute
+  // Overhang a full tile on every side so the drift never exposes an edge.
+  inset: -680px
+  background-repeat: repeat
+  background-size: 640px 640px
+  // A very slow diagonal creep — alive, but never enough to pull the eye.
+  animation: deskDrift 140s linear infinite
+  will-change: transform
+
+@keyframes deskDrift
+  from
+    transform: translate(0, 0)
+  to
+    transform: translate(640px, 640px)
+
+.desk-vignette
+  position: absolute
+  inset: 0
+  pointer-events: none
+  // Darken the far corners so the doodles fade out toward the screen edges and
+  // the composition frames the page.
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 45%, rgba(0,0,0,0.5) 100%)
+
+.page-frame
+  // Shrinks to the self-sizing canvas, so the mute dock anchors to the page.
+  display: flex
+
+.desk-page
+  position: relative
+  // Lift the page off the desk with a soft cast shadow.
+  box-shadow: 0 0 70px rgba(0, 0, 0, 0.6)
+
+.mute-dock
+  right: 0.75rem
+  bottom: 0.75rem
+  // Respect the phone's rounded-corner / gesture inset.
+  right: max(0.75rem, env(safe-area-inset-right))
+  bottom: max(0.75rem, env(safe-area-inset-bottom))
+
+@media (prefers-reduced-motion: reduce)
+  .desk-tiles
+    animation: none
+</style>

@@ -35,6 +35,22 @@ const INK_STEP_MS = 1000 / INK_FPS
  *  indistinguishable here and keeps mid-range Androids at 60fps. */
 const MAX_DPR = 2
 
+/**
+ * The widest the notebook page is ever allowed to get, as width ÷ height.
+ *
+ * The game is a portrait notebook, and stretching it to a wide desktop
+ * viewport wrecks the "college ruled book on a desk" feel — the paper goes
+ * landscape and the ruled lines run for miles. So the page is capped to this
+ * portrait aspect and CENTRED, with the surrounding viewport left as dark desk
+ * (letterbox bars). A viewport NARROWER than this (every phone) is under the
+ * cap and fills fully, so mobile is unaffected.
+ *
+ * 0.72 ≈ a composition book (7.5"×9.75"). It's also ≥ 1/1.45, which is the
+ * `InkRenderer.stage` clamp — so the play area exactly fills the capped page
+ * instead of leaving empty paper margins.
+ */
+const MAX_PAGE_ASPECT = 0.72
+
 export interface InkCanvasHooks {
   /** Simulation tick. `dt` is seconds, clamped so a backgrounded tab can't
    *  deliver a 30-second dt and explode the physics. */
@@ -133,12 +149,33 @@ export const useInkCanvas = (hooks: InkCanvasHooks) => {
    *  changes something visible while the sim is paused. */
   const invalidate = (): void => { layerDirty = true }
 
+  /** The full viewport slot to letterbox the page inside. Normally the canvas's
+   *  parent, but an explicit `[data-ink-host]` ancestor wins — the canvas may be
+   *  wrapped (e.g. so an overlay can dock to the page corner), and that wrapper
+   *  shrink-wraps the canvas, which would feed back on our own resize. */
+  const hostEl = (cv: HTMLCanvasElement): HTMLElement | null =>
+    (cv.closest('[data-ink-host]') as HTMLElement | null) ?? cv.parentElement
+
   const resize = (): void => {
     const cv = canvasRef.value
-    if (!cv) return
-    const rect = cv.getBoundingClientRect()
-    const nextW = Math.max(1, Math.round(rect.width))
-    const nextH = Math.max(1, Math.round(rect.height))
+    const parent = cv && hostEl(cv)
+    if (!cv || !parent) return
+    // Measure the host slot, then letterbox the page inside it. We size the
+    // canvas ELEMENT to the page rect and let the host centre it — so this must
+    // read the host, not the canvas, or it would feed back on its own resize.
+    const pr = parent.getBoundingClientRect()
+    const availW = Math.max(1, Math.round(pr.width))
+    const availH = Math.max(1, Math.round(pr.height))
+
+    // Cap the page's width to MAX_PAGE_ASPECT of its height (portrait). A wide
+    // viewport pillarboxes; a portrait one fills.
+    let nextW = availW
+    let nextH = availH
+    if (availW / availH > MAX_PAGE_ASPECT) {
+      nextH = availH
+      nextW = Math.round(availH * MAX_PAGE_ASPECT)
+    }
+
     const nextDpr = Math.min(MAX_DPR, window.devicePixelRatio || 1)
     if (nextW === cssW && nextH === cssH && nextDpr === dpr) return
 
@@ -146,6 +183,10 @@ export const useInkCanvas = (hooks: InkCanvasHooks) => {
     cssH = nextH
     dpr = nextDpr
 
+    // The canvas element is the notebook; its CSS px size is the page rect.
+    // The parent (flex-centred, dark background) supplies the letterbox bars.
+    cv.style.width = `${cssW}px`
+    cv.style.height = `${cssH}px`
     cv.width = Math.round(cssW * dpr)
     cv.height = Math.round(cssH * dpr)
 
@@ -285,10 +326,13 @@ export const useInkCanvas = (hooks: InkCanvasHooks) => {
     if (!ctx) return
     ink.value = new InkRenderer(ctx)
     resize()
-    // ResizeObserver rather than a window resize listener: it also fires for
-    // safe-area / URL-bar changes on mobile, which do not always emit resize.
+    // Observe the HOST slot, not the canvas — `resize()` sets the canvas's own
+    // CSS size, so observing the canvas would loop. The host tracks the viewport
+    // (incl. safe-area / URL-bar changes on mobile, which don't always emit a
+    // window resize event).
     ro = new ResizeObserver(() => resize())
-    ro.observe(cv)
+    const host = hostEl(cv)
+    if (host) ro.observe(host)
     start()
   })
 

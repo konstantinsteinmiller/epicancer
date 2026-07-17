@@ -193,7 +193,7 @@ paying out after the content well is deep.
 
 ## Explicitly NOT recommended
 
-- **Currency / shop / battle pass.** The epicrolla meta-progression was removed
+- **Currency / shop / battle pass.** The midnight-analog meta-progression was removed
   deliberately. This is a 3-minute score-attack game about a bored teenager; a
   coin economy would add grind, a persistent balance to protect (and therefore a
   save-conflict problem the merge policy is now happily free of), and would

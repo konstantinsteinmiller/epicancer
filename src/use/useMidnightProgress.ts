@@ -43,7 +43,7 @@ export const isOnboarded = ref(false)
 
 // ─── Aliases consumed by the platform layer ────────────────────────────────
 // `gamepixPlugin` reports progression to the portal with these two names. They
-// were the epicrolla vocabulary; Midnight Analog has no stages, so "how deep
+// were the midnight-analog vocabulary; Midnight Analog has no stages, so "how deep
 // did they get" maps to nights survived and "how much did they play" maps to
 // lifetime micro-games. Keeping the names avoids touching the SDK plumbing.
 export const gamesPlayedTotal = ideasPlayed

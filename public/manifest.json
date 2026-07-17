@@ -1,6 +1,6 @@
 {
-  "name": "Epicrolla",
-  "short_name": "Epicrolla",
+  "name": "midnight-analog",
+  "short_name": "midnight-analog",
   "display": "standalone",
   "display_override": ["fullscreen", "standalone"],
   "orientation": "portrait",

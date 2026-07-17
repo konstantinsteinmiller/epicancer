@@ -145,7 +145,7 @@ export const isVConsoleSignaledByUrl = (): boolean => {
  *
  * Caveat the URL-trigger doesn't always survive on CG mobile:
  * CrazyGames loads the game from a SEPARATE origin
- * (e.g. `epicrolla.game-files.crazygames.com`) and the parent-frame
+ * (e.g. `midnight-analog.game-files.crazygames.com`) and the parent-frame
  * URL's query/hash is NOT propagated to the iframe. So `?vconsole=1`
  * appended to the CG portal URL won't reach the game's
  * `window.location`. The chord (touch-based) is the only reliable

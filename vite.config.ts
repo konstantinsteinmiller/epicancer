@@ -211,6 +211,14 @@ export default defineConfig(({ mode, command }) => {
           // path so both the raw `.vue` file AND the script-block
           // virtual module are excluded.
           /components[\\/]atoms[\\/]FLogoProgress\.vue/,
+          // usePlatformGameplay resolves the active portal's gameplay
+          // lifecycle hooks (CrazyGames `startGameplay` / Playgama
+          // `gameplayStart`, …) via an `import.meta.env.VITE_APP_*`-gated
+          // dynamic import so non-active platforms tree-shake their SDK glue.
+          // The obfuscator's stringArray would mangle the dynamic-import
+          // literals and break runtime module resolution — same constraint as
+          // resolveSaveStrategy above.
+          /use[\\/]usePlatformGameplay\.ts$/,
           // useMawCampaign lazy-loads the heavy `useStageBuilder`
           // chunk via `await import('@/use/useStageBuilder')` so all
           // 20 stage builds stay off the boot critical path. The
@@ -435,7 +443,7 @@ export default defineConfig(({ mode, command }) => {
   return {
     base: '/',
     server: {
-      port: 2050
+      port: 2033
     },
     define: {
       APP_VERSION: JSON.stringify(appVersion)
