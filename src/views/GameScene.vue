@@ -18,7 +18,7 @@ import { useMusic } from '@/use/useSound'
 import useSounds from '@/use/useSound'
 import { useScreenshake } from '@/use/useScreenshake'
 import { isGamePaused } from '@/use/useGamePause'
-import { isMobilePortrait, isMobileLandscape } from '@/use/useUser'
+import { isMobilePortrait, isMobileLandscape, isShortViewport } from '@/use/useUser'
 import { spawnCoinExplosion } from '@/use/useCoinExplosion'
 import {
   isInterstitialReady,
@@ -27,6 +27,8 @@ import {
   showRewardedAd
 } from '@/use/useAds'
 import { startGameplay, stopGameplay } from '@/use/useCrazyGames'
+import { isAnyModalOpen } from '@/use/useModalState'
+import { playFirstStartInterstitial } from '@/use/useFirstStartInterstitial'
 
 import StageBadge from '@/components/StageBadge.vue'
 import ScoreBadge from '@/components/atoms/ScoreBadge.vue'
@@ -61,6 +63,15 @@ const { startBattleMusic, stopBattleMusic } = useMusic()
 const { playSound } = useSounds()
 const { shakeStyle } = useScreenshake()
 
+// The result overlay's single-column (non-mobile) layout overflows on a short
+// viewport — e.g. the game in a portal iframe on a Chromebook (~764×385),
+// where the full-size title + tiles line + bottom-anchored continue hint
+// collide and clip the reward button. On those viewports we shrink the title,
+// drop the tiles line, and tighten the gaps. Mobile landscape keeps its own
+// purpose-built 2-column layout (isMobileLandscape), so this is scoped to the
+// non-mobile short case only.
+const isShortResult = computed(() => isShortViewport.value && !isMobileLandscape.value)
+
 // ─── Canvas + render loop ─────────────────────────────────────────────────
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let ctx: CanvasRenderingContext2D | null = null
@@ -94,6 +105,25 @@ const loop = (t: number): void => {
 }
 
 // ─── Input ────────────────────────────────────────────────────────────────
+// First click-to-start of the session routes through here. On GameMonetize /
+// GameDistribution it shows the moderation-mandated first-play interstitial
+// BEFORE the run (and its music) begins — `playFirstStartInterstitial` hard-
+// stops audio and resolves only on the ad's close/no-fill, then `begin()` starts
+// the run and the phase watcher starts battle music fresh. The `startingRun`
+// guard stops a second tap during the ad from kicking the run off underneath it.
+// No-op fast-path on every other build / subsequent start (the helper returns
+// immediately), so non-GM/GD starts feel instant.
+let startingRun = false
+const startRun = async (): Promise<void> => {
+  if (startingRun || phase.value !== 'idle') return
+  startingRun = true
+  try {
+    await playFirstStartInterstitial()
+    if (phase.value === 'idle') begin()
+  } finally {
+    startingRun = false
+  }
+}
 const onPointerDown = (e: PointerEvent): void => {
   // Claim keyboard focus on the pointer gesture. In a portal iframe
   // (GameMonetize / Playgama / itch) the iframe's window does NOT hold keyboard
@@ -109,16 +139,18 @@ const onPointerDown = (e: PointerEvent): void => {
   try { window.focus() } catch { /* cross-origin parent can refuse — ignore */ }
   e.preventDefault()
   if (showResult.value || showSecondChance.value) return
-  if (phase.value === 'idle') begin()
+  if (phase.value === 'idle') void startRun()
   else if (phase.value === 'playing') flip()
 }
 const onKey = (e: KeyboardEvent): void => {
   if (e.code !== 'Space' && e.code !== 'ArrowUp' && e.code !== 'Enter') return
+  // Ignore OS key-repeat: a held key must not fire a flip on every repeat tick.
+  if (e.repeat) return
   const tgt = e.target
   if (tgt instanceof HTMLElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(tgt.tagName)) return
   e.preventDefault()
   if (showResult.value || showSecondChance.value) return
-  if (phase.value === 'idle') begin()
+  if (phase.value === 'idle') void startRun()
   else if (phase.value === 'playing') flip()
 }
 
@@ -272,7 +304,7 @@ const RESULT_INTERSTITIAL_DELAY_MS = 600
 // so spamming the ad network on every defeat just burns its internal
 // frequency-cap quota and starves the win ads. Throttling loses to 1-in-3
 // leaves headroom for the win interstitial to actually fill.
-const LOSE_AD_EVERY = 3
+const LOSE_AD_EVERY = 2
 let loseScreenCount = 0
 
 /** Show a result-screen interstitial after the standard delay. Always requests
@@ -289,19 +321,25 @@ const presentResultInterstitial = async (): Promise<void> => {
 const presentLoseScreen = async (): Promise<void> => {
   twoXUsed.value = false
   finishRun(false)
-  showResult.value = true
-  void grantRunCoins()
-  // Game-Over sting as the lose screen appears (distinct from the crash SFX).
-  playSound('lose', 0.08)
   // Keep the bg music silent for the whole result screen — it resumes only when
   // the player continues (onResultContinue).
   stopBattleMusic()
-  // Interstitial on every 3rd lose screen only (see LOSE_AD_EVERY); wins always
-  // request one. 600ms in, request the interstitial when this lose is due.
+  // Play the auto-midgame interstitial FIRST — before the lose screen is
+  // revealed — mirroring the win flow (onWin). Showing the result first made it
+  // flash on-screen for the pre-ad beat and then had its Game-Over sting cut off
+  // the instant the ad opened over it (CG QA). Every 3rd lose only (see
+  // LOSE_AD_EVERY); wins always request one. Gate the reveal behind the ad only
+  // when one is actually ready, so non-ad builds (Noop / native, no-fill) fall
+  // straight through with no extra delay.
   loseScreenCount += 1
-  if (loseScreenCount % LOSE_AD_EVERY === 0) {
+  if (loseScreenCount % LOSE_AD_EVERY === 0 && isInterstitialReady.value) {
     await presentResultInterstitial()
   }
+  // Game-Over sting as the lose screen appears (distinct from the crash SFX) —
+  // now AFTER the ad, so it can't be cut off.
+  playSound('lose', 0.08)
+  showResult.value = true
+  void grantRunCoins()
 }
 
 const onWin = async (): Promise<void> => {
@@ -310,14 +348,21 @@ const onWin = async (): Promise<void> => {
   finishRun(true)
   // Silence the bg music while the post-run screens are up (SFX still play).
   stopBattleMusic()
+  // Play the auto-midgame interstitial FIRST — before the Stage Clear screen.
+  // Showing the result first made it flash on-screen for the pre-ad beat and
+  // then had its win sting cut off the instant the ad opened over it (CG QA).
+  // Gate the reveal behind the ad only when one is actually ready; non-ad
+  // builds (Noop / native, no-fill) fall straight through with no extra delay.
+  if (isInterstitialReady.value) {
+    await presentResultInterstitial()
+  }
+  // Win stinger now plays with the result reveal — after the ad, so it can't be
+  // cut off. On a campaign clear the boon picker comes AFTER the player
+  // continues, before the next stage (onResultContinue).
   playSound('happy', 0.08)
   playSound('celebration-3', 0.08)
-  // Show the win/reward screen FIRST so the player sees their coin reward + hears
-  // the win sting and understands why the run stopped. On a campaign clear the
-  // boon picker comes AFTER they continue, before the next stage (onResultContinue).
   showResult.value = true
   void grantRunCoins()
-  void presentResultInterstitial()
 }
 
 const onTwoX = async (): Promise<void> => {
@@ -403,15 +448,35 @@ watch(phase, (p, prev) => {
   if (p === 'playing' && prev !== 'playing') startBattleMusic()
   if (p === 'dead' && prev === 'playing') void onDeath()
   if (p === 'won' && prev === 'playing') void onWin()
-  // CrazyGames gameplay lifecycle: tell the SDK the player is in a live run
-  // only while `playing`. Entering ANY non-playing state (dead → ContinueModal
-  // / Lose screen, won → Win screen, idle → menu) ends gameplay. Both calls are
-  // idempotent in the CG module, so a revive (dead → playing) cleanly restarts
-  // it, and `onAcceptContinue`'s `revive()` flips phase back to 'playing' which
-  // re-fires gameplayStart here. No-op on non-CG builds (stubbed).
-  if (p === 'playing') startGameplay()
-  else stopGameplay()
 })
+
+// ─── CrazyGames gameplay lifecycle (single source of truth) ──────────────────
+//
+// Per the CG SDK rules: call `gameplayStart()` "whenever the player starts
+// playing or resumes playing after a break (game start, resume, revive, enter
+// next level)" and `gameplayStop()` "on every game break (entering a menu,
+// ending level, pausing the game)". CG ALSO states: do NOT call gameplayStop
+// when the player switches focus / leaves the game area — the platform handles
+// that automatically. So the signal is deliberately NOT tied to the full
+// `isGamePaused` gate (which OR's in tab-visibility + platform pause); it tracks
+// only the breaks WE own: the run is live (`playing`) and no blocking modal /
+// menu is open. Driving both calls off one computed covers every transition
+// for free and can never desync:
+//   • start — run begins, a revive flips `dead → playing`, the next stage
+//              starts, or the last menu/modal closes during a live run.
+//   • stop  — win/lose result screen (phase leaves `playing`) or a menu opens.
+// Ad breaks are handled separately inside `useCrazyGames`' ad wrappers (they
+// stop/resume gameplay around the video, as CG recommends). Both SDK calls are
+// idempotent and no-op on non-CG builds, so this is safe to run unconditionally.
+// Replaces the old phase-only driver + the per-modal `stopGameplay()` calls
+// (which stopped but never restarted).
+const isLiveGameplay = computed(
+  () => phase.value === 'playing' && !isAnyModalOpen.value
+)
+watch(isLiveGameplay, (live) => {
+  if (live) startGameplay()
+  else stopGameplay()
+}, { immediate: true })
 
 // Push the equipped ball skin to the renderer now and whenever it changes
 // (buying/equipping in the SkinModal). `setBallSkin` invalidates the decoded
@@ -669,15 +734,18 @@ onUnmounted(() => {
       //- nothing overlaps in the short viewport; portrait/desktop stay a single
       //- centred column.
       div(
-        :class="isMobileLandscape \
-          ? 'grid grid-cols-2 items-center gap-x-6 gap-y-1 px-2' \
-          : 'flex flex-col items-center gap-4'"
+        :class="[ \
+          isMobileLandscape \
+            ? 'grid grid-cols-2 items-center gap-x-6 gap-y-1 px-2' \
+            : 'flex flex-col items-center', \
+          { 'gap-2': !isMobileLandscape && isShortResult, 'gap-4': !isMobileLandscape && !isShortResult } \
+        ]"
       )
         //- ── Left column (landscape) / top (portrait): outcome + tiles ──
         div.flex.flex-col.items-center(:class="isMobileLandscape ? 'gap-1' : 'gap-4 contents'")
           div.font-black.uppercase.tracking-wider.game-text(
             class="text-3xl sm:text-5xl"
-            :class="[gameResult === 'win' ? 'text-green-400' : 'text-red-400', { '!text-2xl': isMobileLandscape }]"
+            :class="[gameResult === 'win' ? 'text-green-400' : 'text-red-400', { '!text-2xl': isMobileLandscape, '!text-3xl': isShortResult }]"
           ) {{ gameResult === 'win' ? t('result.win') : t('result.lose') }}
           div.text-white.game-text.text-center.opacity-80(
             v-if="gameResult === 'lose'"
@@ -690,8 +758,13 @@ onUnmounted(() => {
             class="text-sm sm:text-base"
             :class="{ '!text-xs leading-tight': isMobileLandscape }"
           ) {{ t('result.almost', { n: nearMissTiles }) }}
-          //- Tiles travelled this run
-          div.flex.items-center.gap-2.text-white.game-text(class="text-base sm:text-lg")
+          //- Tiles travelled this run. Hidden on short single-column viewports
+          //- (e.g. Chromebook iframe ~764×385) where every row counts toward
+          //- keeping the reward button on-screen.
+          div.flex.items-center.gap-2.text-white.game-text(
+            v-if="!isShortResult"
+            class="text-base sm:text-lg"
+          )
             span.opacity-70.uppercase.tracking-wider.text-xs {{ t('result.tiles') }}
             span.font-black.text-yellow-200(class="text-xl sm:text-2xl" :class="{ '!text-lg': isMobileLandscape }") {{ score }}
         //- ── Right column (landscape) / continues below (portrait): coins + 2× ──

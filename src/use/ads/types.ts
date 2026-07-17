@@ -61,6 +61,15 @@ export interface AdProvider {
    */
   readonly isAdsBlocked: Ref<boolean>
   /**
+   * Opt-in: the SDK shows its OWN ad-blocker notice, so `useAds` must NOT
+   * surface the shared in-game `AdsBlockedModal` on a blocked rewarded tap —
+   * doing so would stack a second popup on top of the platform's own (CG QA).
+   * `isAdsBlocked` still flips (callers must not grant the reward); only the
+   * redundant modal is suppressed. CrazyGames sets this; left falsy elsewhere
+   * so the shared modal stays the explainer for SDKs without their own.
+   */
+  readonly ownsAdBlockUi?: boolean
+  /**
    * Opt-in: the provider mutes the game's audio + flips the pause gate
    * ITSELF, only once the interstitial genuinely opens — by invoking the
    * `onImpression` callback passed to `showMidgameAd`. Left falsy (the

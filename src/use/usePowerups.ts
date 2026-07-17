@@ -42,9 +42,11 @@ export const powerupDuration = (type: PowerupType): number =>
   POWERUPS[type].baseDuration + upgradedValue('powerupDuration')
 
 const usePowerups = () => {
-  /** Activate a power-up. `clock` is the game's monotonic ms time. */
-  const activate = (type: PowerupType, clock: number): void => {
-    const durationMs = powerupDuration(type) * 1000
+  /** Activate a power-up. `clock` is the game's monotonic ms time.
+   *  `durationMult` scales the rolled duration — a LUCKY item box passes `2`
+   *  for the telegraphed double-duration drop (roadmap #12); defaults to `1`. */
+  const activate = (type: PowerupType, clock: number, durationMult = 1): void => {
+    const durationMs = powerupDuration(type) * 1000 * durationMult
     active.value = { type, endsAt: clock + durationMs, durationMs }
   }
 

@@ -27,6 +27,9 @@ export const createCrazyGamesProvider = (): AdProvider => {
     isRewardedReady: isReady,
     isInterstitialReady: isReady,
     isAdsBlocked: isCrazyAdsBlocked,
+    // CrazyGames renders its own ad-blocker notice, so suppress our shared
+    // AdsBlockedModal — otherwise the player sees two stacked popups (CG QA).
+    ownsAdBlockUi: true,
     init: async () => {
     },
     showRewardedAd,

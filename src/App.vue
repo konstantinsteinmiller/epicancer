@@ -174,6 +174,7 @@ const plattformText = computed(() => getPlattformText())
 *
   font-family: 'Angry', sans-serif
   user-select: none
+  outline: none
   // Standard
   -webkit-user-select: none
   // Safari

@@ -138,7 +138,9 @@ export const showRewardedAd = async (): Promise<boolean> => {
     const granted = await provider.showRewardedAd()
     if (granted) {
       recordRewardedGranted()
-    } else if (provider.isAdsBlocked.value) {
+    } else if (provider.isAdsBlocked.value && !provider.ownsAdBlockUi) {
+      // Skip the shared modal when the SDK shows its own ad-blocker notice
+      // (CrazyGames) — stacking two popups was flagged by CG QA.
       showAdsBlockedModal()
     }
     dlog(`${TAG} ⏹ rewarded END (provider=${provider.name}, granted=${granted})`)

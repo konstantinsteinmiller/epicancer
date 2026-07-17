@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import FIconButton from '@/components/atoms/FIconButton.vue'
 import IconCoin from '@/components/icons/IconCoin.vue'
 import useEpicConfig from '@/use/useEpicConfig'
 import useSounds from '@/use/useSound.ts'
-import { stopGameplay } from '@/use/useCrazyGames'
 import { spawnCoinExplosion } from '@/use/useCoinExplosion'
 import { getState, setState } from '@/use/useEpicState'
 import { flushSaveNow } from '@/use/useSaveStatus'
@@ -59,10 +58,6 @@ const dayBroken = computed(() =>
   && state.value.lastCollected !== todayStr()
   && state.value.lastCollected !== yesterdayStr()
 )
-
-watch(isModalOpen, (open) => {
-  if (open) stopGameplay()
-})
 
 const onOpen = () => {
   isModalOpen.value = true

@@ -76,8 +76,18 @@ const MAX_SPEED = 8
 //   • stages 50+     : +0.18/stage, clamped to the MAX_SPEED cap (~stage 52)
 // Each segment is linear; the result is clamped to MAX_SPEED. Replaces the old
 // single `BASE_SPEED + (s-1) * 0.18` line.
+//
+// Stages 1-2 are OVERRIDDEN above the ramp: the ramp made the opener roll so
+// slowly it bored players into early drop-outs (especially on mobile, where the
+// shorter viewport makes the crawl even more obvious). Stage 2 = its old ramp
+// value (~2.59) +10%; stage 1 = that stage-2 speed +10% again, so the very
+// first run actually has pace. Stage 3+ keeps the original stretched ramp.
+const STAGE2_START_SPEED = (BASE_SPEED + (4.12 - BASE_SPEED) / 19) * 1.1 // ~2.84
+const STAGE1_START_SPEED = STAGE2_START_SPEED * 1.1                      // ~3.13
 const startSpeedForStage = (stage: number): number => {
   const s = Math.max(1, stage)
+  if (s === 1) return STAGE1_START_SPEED
+  if (s === 2) return STAGE2_START_SPEED
   let v: number
   if (s <= 20) v = BASE_SPEED + (s - 1) * ((4.12 - BASE_SPEED) / 19)
   else if (s <= 50) v = 4.12 + (s - 20) * ((7.72 - 4.12) / 30)
@@ -108,7 +118,7 @@ export const DROP_MS = 420
 //
 // Strugglers on the first three stages get a gentler goal: each FAILED attempt
 // on a stage shaves 10% off that stage's tile target, down to a 50% floor. So a
-// player who has lost 4 times on stage 1 only needs 12 tiles (20 × 0.6) to clear
+// player who has lost 4 times on stage 1 only needs 18 tiles (30 × 0.6) to clear
 // it. Kept in a module-level Map that is intentionally NOT persisted to
 // localStorage/SDK — it resets on reload, which is acceptable.
 const RUBBER_BAND_STAGES = 3
@@ -414,15 +424,19 @@ const useEpicGame = () => {
   // q/(1+q): ~12.3% of cells at stage 20, ~14.5% at the 0.17 cap. Endless softens
   // it; the first-ever (onboarding) run halves it; a player stuck on a stage 10+
   // gets the field further thinned per death (see `lateStageObstacleRelief`).
+  // Stages 1-2 were laughably empty (an unloseable stage 1 = early dropouts), so
+  // they now spawn at stage-3 density — the gentle ramp begins from stage 3.
   const HAZARD_EARLY_END = 0.14    // q at the end of the 1→20 ramp, held flat to 50
   const HAZARD_MAX = 0.17          // far-late-game cap (reached ~stage 65)
   const HAZARD_LATE_PER_STAGE = 0.002
   const stageHazardChance = (stage: number): number => {
     const s = Math.max(1, stage)
+    // Floor the density-driving stage at 3 so stages 1 & 2 spawn like stage 3.
+    const ds = Math.max(3, s)
     let p: number
-    if (s <= 20) p = 0.05 + (s - 1) * ((HAZARD_EARLY_END - 0.05) / 19)
-    else if (s <= 50) p = HAZARD_EARLY_END
-    else p = Math.min(HAZARD_MAX, HAZARD_EARLY_END + (s - 50) * HAZARD_LATE_PER_STAGE)
+    if (ds <= 20) p = 0.05 + (ds - 1) * ((HAZARD_EARLY_END - 0.05) / 19)
+    else if (ds <= 50) p = HAZARD_EARLY_END
+    else p = Math.min(HAZARD_MAX, HAZARD_EARLY_END + (ds - 50) * HAZARD_LATE_PER_STAGE)
     if (gameMode.value === 'endless') p *= 0.9
     if (isOnboardingRun.value) p *= 0.5
     // Stuck-player relief: thin the field the more they've died on this stage.
@@ -610,9 +624,10 @@ const useEpicGame = () => {
       game.itemSpawned += 1
     }
 
-    // Stage 1 is short (20-tile goal) with a long safe runway, so it can play
-    // almost empty. Guarantee a box to dodge on each of tiles 9, 12 and 15 (≥3
-    // obstacles in the 9-15 window) so the opener actually teaches dodging. Placed
+    // Stage 1 (30-tile goal) opens with a long safe runway. On top of the
+    // stage-3-level hazard density it now spawns at, guarantee a box to dodge on
+    // each of tiles 9, 12 and 15 (≥3 obstacles in the 9-15 window) so the opener
+    // reliably teaches dodging right after the runway. Placed
     // outside the normal density/runway rules, with in-row neighbours cleared so
     // it never traps the player (stage 1 has only boxes — always dodgeable).
     if (stage === 1 && (r === -9 || r === -12 || r === -15)) {
@@ -622,6 +637,19 @@ const useEpicGame = () => {
       game.cells.delete(cellKey(bc - 2, r))
       game.cells.delete(cellKey(bc + 2, r))
       game.cells.set(cellKey(bc, r), { c: bc, r, kind: 'obstacle', obstacle: 'box' })
+    }
+
+    // Stage 2 early reward: a guaranteed item box just past the opening runway
+    // (tile 8) — before the normal every-10-tiles cadence — so the player scores
+    // a power-up early and finds a reason to keep playing (the stage's first
+    // taste of the upgrade loop). Centred with a cleared approach so it's always
+    // reachable, like the normal item placement above.
+    if (stage === 2 && r === -8) {
+      const mid = C_MAX >> 1
+      const c = ((mid + r) & 1) === 0 ? mid : (mid + 1 <= C_MAX ? mid + 1 : mid - 1)
+      game.cells.set(cellKey(c, r), { c, r, kind: 'item', lucky: false })
+      game.cells.delete(cellKey(c - 1, r + 1))
+      game.cells.delete(cellKey(c + 1, r + 1))
     }
   }
 
@@ -1098,7 +1126,19 @@ const useEpicGame = () => {
     if (phase.value !== 'playing') return
     // No control during the Racer dash or the stage-clear exit roll.
     if (game.racerTilesLeft > 0 || game.racerExitGuard > 0 || game.exiting) return
-    game.nextDir = (-game.nextDir) as 1 | -1
+    // Queue the turn AWAY from the committed heading (`-game.dir`) rather than
+    // toggling the pending value. `dir` only changes when a hop commits
+    // (retarget), so this is stable for the whole hop and a *second* tap before
+    // the ball reaches the next tile — a double-tap to be sure it registered, an
+    // OS key-repeat, or a bouncy touch — just re-asserts the same turn instead
+    // of toggling `nextDir` back to straight and silently eating the turn (the
+    // "I heard the flip but the ball rolled straight on" bug). Idempotent: once
+    // the turn is queued, further taps this hop are a no-op (no re-trigger, no
+    // duplicate swap SFX). For a single tap per tile this matches the old toggle
+    // exactly; it only removes the same-hop cancellation.
+    const turned = (-game.dir) as 1 | -1
+    if (game.nextDir === turned) return
+    game.nextDir = turned
     playSound('anchor-swap', 0.035, 1 + (Math.random() - 0.5) * 0.12)
   }
 
@@ -1267,9 +1307,16 @@ const useEpicGame = () => {
     game.clock += dtMs
 
     if (phase.value !== 'playing') {
-      // Still update the float render pos so the idle ball sits on its cell.
-      game.ballC = game.cell.c
-      game.ballR = game.cell.r
+      // Won: leave the ball where the exit roll parked it — inside the archway
+      // (set by stepExit), occluded behind the gate wall. Snapping it back to
+      // its logical cell here would teleport it to mid-field for the post-win
+      // beat (now visible because the ad/result screen no longer covers the
+      // scene instantly). It only resets on the next stage via resetForStage.
+      // Idle/dead still pin the float render pos to the ball's cell.
+      if (phase.value !== 'won') {
+        game.ballC = game.cell.c
+        game.ballR = game.cell.r
+      }
       return
     }
 

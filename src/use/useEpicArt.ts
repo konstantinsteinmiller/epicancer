@@ -1783,7 +1783,12 @@ export const drawScene = (ctx: CanvasRenderingContext2D, w: number, h: number, n
   // the wall's top edge reaches the screen top, then LOCKS — so the wall reads as
   // the end of the room and the ball rolls the rest of the way up into it.
   let camOffsetY = h * CAMERA_BALL_Y_FRACTION - game.ballR * geo.halfH
-  if (game.exiting) {
+  // Hold the locked exit framing through the `won` phase too (not just while
+  // `exiting`): win() clears `exiting` the instant the roll completes, but the
+  // result screen / midgame ad now appears a beat later, so without this the
+  // camera would pop off the gate for that window. Keeps the gate pinned at the
+  // top with the ball hidden behind it until the next stage resets.
+  if (game.exiting || game.phase === 'won') {
     const gimg = getImg(EXIT_GATE_SRC)
     if (ready(gimg)) {
       const W = exitGateWidth()
@@ -1972,8 +1977,11 @@ export const drawScene = (ctx: CanvasRenderingContext2D, w: number, h: number, n
   const inTeleportSlow = !game.exploded && slowLeft > 0
 
   // The exit roll draws its own ball (so the gate can occlude it as it passes
-  // through the archway), so suppress the normal depth-sorted ball there.
-  const ballIsDrawable = !game.exploded && !game.exiting
+  // through the archway), so suppress the normal depth-sorted ball there — and
+  // keep it suppressed through the `won` phase, otherwise the now-hidden ball
+  // would pop back into view (full opacity, no gate) during the post-win
+  // ad/result beat. It re-appears only on the next stage's reset.
+  const ballIsDrawable = !game.exploded && !game.exiting && game.phase !== 'won'
   // During slow-mo the ball is drawn AFTER the overlay (on top of the dim) so it
   // stays bright; otherwise it sorts into the depth list as usual.
   if (ballIsDrawable && !inTeleportSlow) {
@@ -2020,8 +2028,11 @@ export const drawScene = (ctx: CanvasRenderingContext2D, w: number, h: number, n
   drawPowerupPulse(ctx, w, h)
 
   // Stage-clear: the ball + exit gate, drawn last so the wall occludes the ball
-  // as it rolls through the archway and vanishes behind it.
-  if (game.exiting) drawExitGate(ctx, camOffsetY, now)
+  // as it rolls through the archway and vanishes behind it. Keep drawing the
+  // gate through the `won` phase so it stays on-screen (ball fully faded behind
+  // it) until the next stage resets — the post-win ad/result no longer covers
+  // the scene instantly, so the wall must persist or the ball reads as loose.
+  if (game.exiting || game.phase === 'won') drawExitGate(ctx, camOffsetY, now)
 }
 
 // ─── Stage-clear exit gate ────────────────────────────────────────────────────

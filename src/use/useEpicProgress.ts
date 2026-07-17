@@ -6,20 +6,20 @@ import useEpicConfig from '@/use/useEpicConfig'
 
 // ─── Stage / progression model ──────────────────────────────────────────────
 //
-// Stage 1 is a short, gentle tutorial (20 tiles); stage 2 jumps to 40 and
-// stage 3 to 55, after which every subsequent stage adds +10 tiles
-// (65, 75, …). Reaching the target = a win; the player advances to the next
-// stage on their next run. Stage, best score, lifetime games and max-stage all
-// live as fields inside the single `epicrolla_state` blob.
+// Stage 1 is a short tutorial (30 tiles); stage 2 steps up to 35 and stage 3
+// to 55, after which every subsequent stage adds +10 tiles (65, 75, …).
+// Reaching the target = a win; the player advances to the next stage on their
+// next run. Stage, best score, lifetime games and max-stage all live as fields
+// inside the single `epicrolla_state` blob.
 
 const GAMES_PLAYED_KEY = 'epic_games_played'
 const MAX_STAGE_KEY = 'epic_max_stage'
 
-/** Tiles required to clear a given stage: 20, 40, 55, 65, 75, … */
+/** Tiles required to clear a given stage: 30, 35, 55, 65, 75, … */
 export const tilesToClear = (stage: number): number => {
   const s = Math.max(1, stage)
-  if (s === 1) return 20
-  if (s === 2) return 40
+  if (s === 1) return 30
+  if (s === 2) return 35
   return 55 + (s - 3) * 10
 }
 

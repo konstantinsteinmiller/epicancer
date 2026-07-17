@@ -47,7 +47,11 @@
       "Bash(python3 -c ' *)",
       "Bash(echo \"exitcode=$?\")",
       "Bash(pnpm build:playgama)",
-      "Bash(pnpm build:crazy-web)"
+      "Bash(pnpm build:crazy-web)",
+      "PowerShell(npm run *)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "chrome-devtools"
+  ]
 }

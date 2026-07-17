@@ -8,15 +8,10 @@ import FButton from '@/components/atoms/FButton.vue'
 import FSlider from '@/components/atoms/FSlider.vue'
 import FSelect from '@/components/atoms/FSelect.vue'
 import { LANGUAGES, LANGUAGE_AUTONYMS, DIFFICULTY } from '@/utils/enums'
-import { stopGameplay } from '@/use/useCrazyGames'
 
-const props = defineProps<{
+defineProps<{
   isOpen: boolean
 }>()
-
-watch(() => props.isOpen, (open) => {
-  if (open) stopGameplay()
-})
 
 const emit = defineEmits<{
   (e: 'close'): void

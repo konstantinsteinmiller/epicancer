@@ -18,6 +18,7 @@ import {
   retryInFlight,
   retrySync
 } from '@/use/useSaveStatus'
+import { isCrazyWeb } from '@/use/useUser'
 
 const { t } = useI18n()
 
@@ -40,7 +41,16 @@ onUnmounted(() => {
   if (bonusTimer) clearTimeout(bonusTimer)
 })
 
-const showOffline = computed(() => isOfflineMode.value && !offlineDismissed.value)
+// The offline banner says "Playing offline. Your progress is saved here." —
+// only TRUE for builds with a local fallback (LocalStorage / Glitch / itch / GD
+// / GamePix, all `persistToRaw: true`). CrazyGames is CLOUD-ONLY
+// (`persistToRaw: false`), so there is no local save and the message would be a
+// lie; the strategy also goes `failed-retrying` whenever `sdk.data` is
+// unreachable — which is ALWAYS the case off-portal (localhost / preview),
+// flashing a scary banner during dev. The retry ladder still heals silently
+// underneath, and CG doesn't mandate an offline notice, so suppress the banner
+// on CG entirely. The "cloud save restored" bonus banner is unaffected.
+const showOffline = computed(() => isOfflineMode.value && !offlineDismissed.value && !isCrazyWeb)
 const showBonus = computed(() => hasBonusToShow.value && !dismissed.value)
 
 const onRetry = async (e: Event) => {

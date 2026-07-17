@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import AchievementsModal from '@/components/organisms/AchievementsModal.vue'
 import useAchievements from '@/use/useAchievements'
-import { stopGameplay } from '@/use/useCrazyGames'
 
 const emit = defineEmits<{
   (e: 'coins-awarded', sourceEl: HTMLElement): void
@@ -10,10 +9,6 @@ const emit = defineEmits<{
 
 const { pendingCount, hasUnclaimed } = useAchievements()
 const isModalOpen = ref(false)
-
-watch(isModalOpen, (open) => {
-  if (open) stopGameplay()
-})
 </script>
 
 <template lang="pug">

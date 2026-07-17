@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev-playgama": "vite --mode playgama",
     "build": "run-p type-check \"build-only {@}\" --",
-    "build-only": "vite build ",
+    "build-only": "vite build",
     "build:crazy-web": "vite build --mode crazy-web --base=./ ",
     "build:wavedash": "vite build --mode wavedash --base=./ --outDir=wavedash-dist && wavedash build push",
     "build:itch": "vite build --mode itch --base=./ && cd dist && tar -a -cf ../epicrolla-itch.zip * && cd .. && move epicrolla-itch.zip dist\\",

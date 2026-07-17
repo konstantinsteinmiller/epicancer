@@ -10,10 +10,10 @@ beforeEach(() => {
 })
 
 describe('tilesToClear', () => {
-  it('ramps 20, 40, 55, then +10 per stage', async () => {
+  it('ramps 30, 35, 55, then +10 per stage', async () => {
     const { tilesToClear } = await import('@/use/useEpicProgress')
-    expect(tilesToClear(1)).toBe(20)
-    expect(tilesToClear(2)).toBe(40)
+    expect(tilesToClear(1)).toBe(30)
+    expect(tilesToClear(2)).toBe(35)
     expect(tilesToClear(3)).toBe(55)
     expect(tilesToClear(4)).toBe(65)
     expect(tilesToClear(5)).toBe(75)

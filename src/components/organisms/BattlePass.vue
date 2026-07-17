@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import FModal from '@/components/molecules/FModal.vue'
 import IconCoin from '@/components/icons/IconCoin.vue'
@@ -11,7 +11,6 @@ import useBattlePass, {
 } from '@/use/useBattlePass'
 import { spawnCoinExplosion } from '@/use/useCoinExplosion'
 import useSounds from '@/use/useSound.ts'
-import { stopGameplay } from '@/use/useCrazyGames'
 
 const {
   currentXp,
@@ -35,10 +34,6 @@ const { playSound } = useSounds()
 
 const isModalOpen = ref(false)
 const bpBtnRef = ref<HTMLElement | null>(null)
-
-watch(isModalOpen, (open) => {
-  if (open) stopGameplay()
-})
 
 const inProgressStage = computed(() =>
   isMaxed.value ? 0 : unlockedStages.value + 1

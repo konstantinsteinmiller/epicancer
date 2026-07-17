@@ -18,6 +18,13 @@ export const isMobilePortrait = computed(() =>
   mobileCheck() && windowWidth.value < windowHeight.value
 )
 
+// A short viewport (≤ 500px tall) where the full-size desktop result/reward
+// overlay overflows — e.g. the game embedded in a portal iframe on a
+// Chromebook (~764×385). Deliberately NOT gated on `mobileCheck()`, so it
+// catches the non-touch short-embed case that `isMobileLandscape` misses; the
+// overlay uses it to shrink the title, drop the tiles line, and tighten gaps.
+export const isShortViewport = computed(() => windowHeight.value <= 500)
+
 declare const APP_VERSION: string
 export const isCrazyWeb = import.meta.env.VITE_APP_CRAZY_WEB === 'true'
 export const isWaveDash = import.meta.env.VITE_APP_WAVEDASH === 'true'
