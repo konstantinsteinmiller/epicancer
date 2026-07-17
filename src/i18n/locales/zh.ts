@@ -45,6 +45,32 @@ export default {
       'hint': '在时间用完前踩扁每只虫子',
       'splat': '啪唧！'
     },
+    'mirage': {
+      'verb': '拍！',
+      'hint': '拍真正的跳鼠，不是海市蜃楼',
+      'boop': '啵！'
+    },
+    'thermometer': {
+      'verb': '降温！',
+      'hint': '圆环闭合时按顺序点冰块',
+      'boiling': '沸点'
+    },
+    'potato': {
+      'verb': '抛！',
+      'hint': '烫伤前点空手把它抛过去',
+      'ouch': '哎哟！'
+    },
+    'fan': {
+      'verb': '扇！',
+      'hint': '跟着节奏点击扇走热气',
+      'stress': '热'
+    },
+    'shadow': {
+      'verb': '跳！',
+      'hint': '点影子跳离滚烫的管道',
+      'phew': '呼～',
+      'burn': '烫！'
+    },
     'signal': {
       'verb': '调频！',
       'hint': '转动天线找到信号',

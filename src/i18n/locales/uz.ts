@@ -45,6 +45,32 @@ export default {
       'hint': 'Vaqt tugamasdan har bir hasharotni ezing',
       'splat': 'Shap!'
     },
+    'mirage': {
+      'verb': 'Ur!',
+      'hint': 'HAQIQIY qo‘shoyoqni ur, sarobni emas',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Sovit!',
+      'hint': 'Halqalar yopilganda muzlarni navbat bilan bosing',
+      'boiling': 'Qaynash nuqtasi'
+    },
+    'potato': {
+      'verb': 'Uloq!',
+      'hint': 'Kuymasdan oldin uloqtirish uchun bo‘sh qo‘lni bos',
+      'ouch': 'Voy!'
+    },
+    'fan': {
+      'verb': 'Yelpi!',
+      'hint': 'Issiqni haydash uchun ritmda bosing',
+      'stress': 'Issiq'
+    },
+    'shadow': {
+      'verb': 'Sakra!',
+      'hint': 'Issiq quvurdan sakrash uchun soyani bos',
+      'phew': 'Uf!',
+      'burn': 'Issiq!'
+    },
     'signal': {
       'verb': 'Sozlang!',
       'hint': 'Signalni topguncha antennani buring',

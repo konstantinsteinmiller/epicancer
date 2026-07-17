@@ -45,6 +45,32 @@ export default {
       'hint': 'Đè bẹp mọi con bọ trước khi hết giờ',
       'splat': 'Bẹp!'
     },
+    'mirage': {
+      'verb': 'Đập!',
+      'hint': 'Đập con chuột nhảy THẬT, không phải ảo ảnh',
+      'boop': 'Bốp!'
+    },
+    'thermometer': {
+      'verb': 'Làm mát!',
+      'hint': 'Chạm các viên đá theo thứ tự khi vòng khép lại',
+      'boiling': 'Điểm sôi'
+    },
+    'potato': {
+      'verb': 'Ném!',
+      'hint': 'Chạm tay trống để ném trước khi bị bỏng',
+      'ouch': 'Á!'
+    },
+    'fan': {
+      'verb': 'Quạt!',
+      'hint': 'Chạm theo nhịp để quạt hơi nóng đi',
+      'stress': 'Nóng'
+    },
+    'shadow': {
+      'verb': 'Nhảy!',
+      'hint': 'Chạm bóng râm để nhảy khỏi ống nóng',
+      'phew': 'Phù!',
+      'burn': 'Nóng!'
+    },
     'signal': {
       'verb': 'Dò sóng!',
       'hint': 'Xoay ăng-ten để tìm sóng',

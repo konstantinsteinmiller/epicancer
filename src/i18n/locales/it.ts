@@ -45,6 +45,32 @@ export default {
       'hint': 'Schiaccia ogni insetto prima che scada il tempo',
       'splat': 'Splat!'
     },
+    'mirage': {
+      'verb': 'Colpisci!',
+      'hint': 'Colpisci il gerboa VERO, non i miraggi',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Raffredda!',
+      'hint': 'Tocca i cubetti in ordine quando gli anelli si chiudono',
+      'boiling': 'Punto di ebollizione'
+    },
+    'potato': {
+      'verb': 'Lancia!',
+      'hint': 'Tocca la mano vuota per lanciare prima di scottarti',
+      'ouch': 'Ahi!'
+    },
+    'fan': {
+      'verb': 'Sventola!',
+      'hint': 'Tocca a ritmo per allontanare il calore',
+      'stress': 'Calore'
+    },
+    'shadow': {
+      'verb': 'Salta!',
+      'hint': 'Tocca l’ombra per saltare dal tubo rovente',
+      'phew': 'Uff!',
+      'burn': 'Scotta!'
+    },
     'signal': {
       'verb': 'Sintonizza!',
       'hint': 'Ruota l’antenna per trovare il segnale',

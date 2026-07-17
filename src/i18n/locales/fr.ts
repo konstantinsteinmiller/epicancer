@@ -45,6 +45,32 @@ export default {
       'hint': 'Écrase chaque bestiole avant la fin du temps',
       'splat': 'Splatch !'
     },
+    'mirage': {
+      'verb': 'Tape !',
+      'hint': 'Frappe le VRAI gerboise, pas les mirages',
+      'boop': 'Bop !'
+    },
+    'thermometer': {
+      'verb': 'Refroidis !',
+      'hint': 'Touche les glaçons dans l’ordre quand les anneaux se ferment',
+      'boiling': 'Point d’ébullition'
+    },
+    'potato': {
+      'verb': 'Lance !',
+      'hint': 'Touche la main vide pour lancer avant de te brûler',
+      'ouch': 'Aïe !'
+    },
+    'fan': {
+      'verb': 'Évente !',
+      'hint': 'Touche en rythme pour chasser la chaleur',
+      'stress': 'Chaleur'
+    },
+    'shadow': {
+      'verb': 'Saute !',
+      'hint': 'Touche l’ombre pour sauter du tuyau brûlant',
+      'phew': 'Ouf !',
+      'burn': 'Chaud !'
+    },
     'signal': {
       'verb': 'Règle !',
       'hint': 'Tourne l’antenne pour trouver le signal',

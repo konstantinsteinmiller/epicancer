@@ -45,6 +45,32 @@ export default {
       'hint': 'Plet elk beestje voordat de tijd om is',
       'splat': 'Splat!'
     },
+    'mirage': {
+      'verb': 'Mep!',
+      'hint': 'Mep de ECHTE springmuis, niet de luchtspiegelingen',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Koel af!',
+      'hint': 'Tik de ijsblokjes op volgorde als de ringen sluiten',
+      'boiling': 'Kookpunt'
+    },
+    'potato': {
+      'verb': 'Gooi!',
+      'hint': 'Tik de lege hand om te gooien voor hij verbrandt',
+      'ouch': 'Au!'
+    },
+    'fan': {
+      'verb': 'Wapper!',
+      'hint': 'Tik op de maat om de hitte weg te wapperen',
+      'stress': 'Hitte'
+    },
+    'shadow': {
+      'verb': 'Spring!',
+      'hint': 'Tik de schaduw om van de hete pijp te springen',
+      'phew': 'Pf!',
+      'burn': 'Heet!'
+    },
     'signal': {
       'verb': 'Afstemmen!',
       'hint': 'Draai de antenne tot je signaal vindt',

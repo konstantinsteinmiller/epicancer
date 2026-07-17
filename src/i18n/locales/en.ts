@@ -53,6 +53,32 @@ export default {
       'hint': 'Squash every bug before time runs out',
       'splat': 'Splat!'
     },
+    'mirage': {
+      'verb': 'Whack!',
+      'hint': 'Whack the SOLID jerboa, not the mirages',
+      'boop': 'Boop!'
+    },
+    'thermometer': {
+      'verb': 'Cool it!',
+      'hint': 'Tap the ice cubes in order as the rings close',
+      'boiling': 'Boiling Point'
+    },
+    'potato': {
+      'verb': 'Toss!',
+      'hint': 'Tap the empty hand to toss before it burns',
+      'ouch': 'Ouch!'
+    },
+    'fan': {
+      'verb': 'Fan!',
+      'hint': 'Tap in rhythm to fan the heat away',
+      'stress': 'Heat'
+    },
+    'shadow': {
+      'verb': 'Leap!',
+      'hint': 'Tap the shadow to leap off the hot pipe',
+      'phew': 'Phew!',
+      'burn': 'Hot!'
+    },
     'signal': {
       'verb': 'Tune it!',
       'hint': 'Circle the antenna to find the signal',

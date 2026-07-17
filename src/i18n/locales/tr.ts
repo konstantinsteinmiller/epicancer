@@ -45,6 +45,32 @@ export default {
       'hint': 'Süre bitmeden her böceği ez',
       'splat': 'Sap!'
     },
+    'mirage': {
+      'verb': 'Vur!',
+      'hint': 'GERÇEK arap tavşanına vur, seraplara değil',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Soğut!',
+      'hint': 'Halkalar kapanınca buzları sırayla dokun',
+      'boiling': 'Kaynama noktası'
+    },
+    'potato': {
+      'verb': 'Fırlat!',
+      'hint': 'Yanmadan önce fırlatmak için boş ele dokun',
+      'ouch': 'Ah!'
+    },
+    'fan': {
+      'verb': 'Yelle!',
+      'hint': 'Sıcağı savurmak için ritimle dokun',
+      'stress': 'Isı'
+    },
+    'shadow': {
+      'verb': 'Zıpla!',
+      'hint': 'Sıcak borudan atlamak için gölgeye dokun',
+      'phew': 'Oh!',
+      'burn': 'Sıcak!'
+    },
     'signal': {
       'verb': 'Ayarla!',
       'hint': 'Sinyali bulana dek anteni çevir',

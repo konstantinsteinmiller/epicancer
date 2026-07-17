@@ -45,6 +45,32 @@ export default {
       'hint': 'Pencet semua serangga sebelum waktu habis',
       'splat': 'Ceplak!'
     },
+    'mirage': {
+      'verb': 'Pukul!',
+      'hint': 'Pukul jerboa ASLI, bukan fatamorgana',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Dinginkan!',
+      'hint': 'Ketuk es batu berurutan saat cincin menutup',
+      'boiling': 'Titik didih'
+    },
+    'potato': {
+      'verb': 'Lempar!',
+      'hint': 'Ketuk tangan kosong untuk melempar sebelum terbakar',
+      'ouch': 'Aduh!'
+    },
+    'fan': {
+      'verb': 'Kipas!',
+      'hint': 'Ketuk mengikuti irama untuk mengipas panas',
+      'stress': 'Panas'
+    },
+    'shadow': {
+      'verb': 'Lompat!',
+      'hint': 'Ketuk bayangan untuk lompat dari pipa panas',
+      'phew': 'Fiuh!',
+      'burn': 'Panas!'
+    },
     'signal': {
       'verb': 'Setel!',
       'hint': 'Putar antena untuk cari sinyal',

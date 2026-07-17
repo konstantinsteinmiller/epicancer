@@ -45,6 +45,32 @@ export default {
       'hint': 'Zerquetsche jeden Käfer, bevor die Zeit abläuft',
       'splat': 'Platsch!'
     },
+    'mirage': {
+      'verb': 'Hau!',
+      'hint': 'Hau den ECHTEN Springer, nicht die Trugbilder',
+      'boop': 'Bopp!'
+    },
+    'thermometer': {
+      'verb': 'Kühl ab!',
+      'hint': 'Tippe die Eiswürfel der Reihe nach im Takt',
+      'boiling': 'Siedepunkt'
+    },
+    'potato': {
+      'verb': 'Wirf!',
+      'hint': 'Tippe die leere Hand, um zu werfen, bevor sie brennt',
+      'ouch': 'Autsch!'
+    },
+    'fan': {
+      'verb': 'Fächel!',
+      'hint': 'Tippe im Takt, um die Hitze wegzufächeln',
+      'stress': 'Hitze'
+    },
+    'shadow': {
+      'verb': 'Spring!',
+      'hint': 'Tippe den Schatten, um vom heißen Rohr zu springen',
+      'phew': 'Puh!',
+      'burn': 'Heiß!'
+    },
     'signal': {
       'verb': 'Einstellen!',
       'hint': 'Dreh die Antenne bis das Signal kommt',

@@ -45,6 +45,32 @@ export default {
       'hint': 'Esmague cada inseto antes do tempo acabar',
       'splat': 'Esmaga!'
     },
+    'mirage': {
+      'verb': 'Bate!',
+      'hint': 'Bata no gerbo REAL, não nas miragens',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Esfria!',
+      'hint': 'Toque nos gelos em ordem quando os anéis fecharem',
+      'boiling': 'Ponto de ebulição'
+    },
+    'potato': {
+      'verb': 'Joga!',
+      'hint': 'Toque a mão vazia para jogar antes de queimar',
+      'ouch': 'Ai!'
+    },
+    'fan': {
+      'verb': 'Abana!',
+      'hint': 'Toque no ritmo para abanar o calor',
+      'stress': 'Calor'
+    },
+    'shadow': {
+      'verb': 'Pula!',
+      'hint': 'Toque na sombra para pular do cano quente',
+      'phew': 'Ufa!',
+      'burn': 'Quente!'
+    },
     'signal': {
       'verb': 'Sintoniza!',
       'hint': 'Gire a antena para achar o sinal',

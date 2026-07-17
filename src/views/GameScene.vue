@@ -31,6 +31,11 @@ import { flashlightFlicker } from '@/use/midnight/games/flashlightFlicker'
 import { toastTrap } from '@/use/midnight/games/toastTrap'
 import { sodaExplode } from '@/use/midnight/games/sodaExplode'
 import { bugStomp } from '@/use/midnight/games/bugStomp'
+import { mirageWhack } from '@/use/midnight/games/mirageWhack'
+import { thermometerTap } from '@/use/midnight/games/thermometerTap'
+import { hotPotato } from '@/use/midnight/games/hotPotato'
+import { fanFlame } from '@/use/midnight/games/fanFlame'
+import { shadowJump } from '@/use/midnight/games/shadowJump'
 import { mosquitoSwat } from '@/use/midnight/games/mosquitoSwat'
 import { findSignal } from '@/use/midnight/games/findSignal'
 import { registerCheatHooks } from '@/use/useCheats'
@@ -124,7 +129,7 @@ const registry = {
   micro: [
     routerConnect(), mosquitoSwat(), saiyanPump(),
     staticCat(), windowDash(), flashlightFlicker(), toastTrap(), sodaExplode(),
-    bugStomp()
+    bugStomp(), mirageWhack(), thermometerTap(), hotPotato(), fanFlame(), shadowJump()
   ],
   boss: findSignal()
 }

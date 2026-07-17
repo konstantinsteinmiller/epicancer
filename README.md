@@ -1,11 +1,11 @@
-# epicrolla
+# Midnight Analog
 
-epicrolla is an obstacle course runner game built in TypeScript.
+Midnight Analog is an obstacle course runner game built in TypeScript.
 You control a ball and dodge obstacles while collecting coins and buy upgrades.
 
 
 It features a github pages deployed CI cd pipeline and a windows build + demo build.
 
-WIP: [playable demo](https://konstantinsteinmiller.github.io/epicrolla/)
+WIP: [playable demo](https://konstantinsteinmiller.github.io/midnight-analog/)
 
-![Epicrolla Gameplay](https://github.com/konstantinsteinmiller/epicrolla/blob/main/src/assets/documentation/gameplay.webp)
+![Midnight Analog Gameplay](https://github.com/konstantinsteinmiller/midnight-analog/blob/main/src/assets/documentation/gameplay.webp)

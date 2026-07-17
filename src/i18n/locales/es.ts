@@ -45,6 +45,32 @@ export default {
       'hint': 'Aplasta cada bicho antes de que acabe el tiempo',
       'splat': 'Plas!'
     },
+    'mirage': {
+      'verb': '¡Zas!',
+      'hint': 'Golpea al jerbo REAL, no a los espejismos',
+      'boop': '¡Bup!'
+    },
+    'thermometer': {
+      'verb': '¡Enfría!',
+      'hint': 'Toca los hielos en orden al cerrarse los anillos',
+      'boiling': 'Punto de ebullición'
+    },
+    'potato': {
+      'verb': '¡Lanza!',
+      'hint': 'Toca la mano vacía para lanzar antes de quemarte',
+      'ouch': '¡Ay!'
+    },
+    'fan': {
+      'verb': '¡Abanica!',
+      'hint': 'Toca al ritmo para abanicar el calor',
+      'stress': 'Calor'
+    },
+    'shadow': {
+      'verb': '¡Salta!',
+      'hint': 'Toca la sombra para saltar del tubo caliente',
+      'phew': '¡Uf!',
+      'burn': '¡Caliente!'
+    },
     'signal': {
       'verb': '¡Sintoniza!',
       'hint': 'Gira la antena hasta hallar la señal',

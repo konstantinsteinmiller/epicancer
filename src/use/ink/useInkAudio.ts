@@ -307,6 +307,207 @@ export const splat = (): void => {
   src.stop(t0 + 0.4)
 }
 
+// ── Heat-themed anthology (games 6–10) ─────────────────────────────────────
+
+/** Mirage Whack: a cute rising "BOOP" when you bop the real jerboa. A quick
+ *  upward sine blip — playful, not percussive. */
+export const boop = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const osc = ctx.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(420, t0)
+  osc.frequency.exponentialRampToValueAtTime(880, t0 + 0.09)
+  osc.frequency.exponentialRampToValueAtTime(660, t0 + 0.16)
+  const g = ctx.createGain()
+  env(g, t0, vol(0.5), 0.006, 0.16)
+  osc.connect(g).connect(out)
+  osc.start(t0)
+  osc.stop(t0 + 0.28)
+}
+
+/** Tapping a mirage: a hollow, disappointing little "poof" of nothing. */
+export const poof = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const src = ctx.createBufferSource()
+  src.buffer = noiseBuffer(ctx, 0.16)
+  const lp = ctx.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(900, t0)
+  lp.frequency.exponentialRampToValueAtTime(220, t0 + 0.14)
+  const g = ctx.createGain()
+  env(g, t0, vol(0.28), 0.01, 0.16)
+  src.connect(lp).connect(g).connect(out)
+  src.start(t0)
+  src.stop(t0 + 0.3)
+}
+
+/** Thermometer Tap: a frozen CRACKLE as an ice cube drops in. A cluster of
+ *  brittle high ticks — ice fracturing. */
+export const iceCrackle = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  for (let i = 0; i < 5; i++) {
+    const at = t0 + i * 0.02 + Math.random() * 0.01
+    const src = ctx.createBufferSource()
+    src.buffer = noiseBuffer(ctx, 0.02)
+    const bp = ctx.createBiquadFilter()
+    bp.type = 'bandpass'
+    bp.frequency.value = 4200 + i * 700 + Math.random() * 800
+    bp.Q.value = 9
+    const g = ctx.createGain()
+    env(g, at, vol(0.22), 0.001, 0.03)
+    src.connect(bp).connect(g).connect(out)
+    src.start(at)
+    src.stop(at + 0.05)
+  }
+  // A soft cool wash under the ticks.
+  const osc = ctx.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(600, t0)
+  osc.frequency.exponentialRampToValueAtTime(300, t0 + 0.2)
+  const og = ctx.createGain()
+  env(og, t0, vol(0.18), 0.005, 0.2)
+  osc.connect(og).connect(out)
+  osc.start(t0)
+  osc.stop(t0 + 0.32)
+}
+
+/** The thermometer shattering: a burst of broken-glass shards. */
+export const glassShatter = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  // The initial crack.
+  const crack = ctx.createBufferSource()
+  crack.buffer = noiseBuffer(ctx, 0.05)
+  const chp = ctx.createBiquadFilter()
+  chp.type = 'highpass'
+  chp.frequency.value = 2500
+  const cg = ctx.createGain()
+  env(cg, t0, vol(0.6), 0.001, 0.05)
+  crack.connect(chp).connect(cg).connect(out)
+  crack.start(t0)
+  crack.stop(t0 + 0.08)
+  // Tinkling shards falling.
+  for (let i = 0; i < 9; i++) {
+    const at = t0 + 0.03 + i * 0.035 + Math.random() * 0.02
+    const osc = ctx.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.value = 2600 + Math.random() * 3200
+    const g = ctx.createGain()
+    env(g, at, vol(0.14), 0.001, 0.09)
+    osc.connect(g).connect(out)
+    osc.start(at)
+    osc.stop(at + 0.12)
+  }
+}
+
+/** Hot Potato: a comical high squeak when the stone is caught / thrown. */
+export const squeak = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const osc = ctx.createOscillator()
+  osc.type = 'sawtooth'
+  // Up-then-down, like a rubber-toy squeeze.
+  osc.frequency.setValueAtTime(600, t0)
+  osc.frequency.exponentialRampToValueAtTime(1500, t0 + 0.06)
+  osc.frequency.exponentialRampToValueAtTime(700, t0 + 0.14)
+  const lp = ctx.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.value = 2400
+  const g = ctx.createGain()
+  env(g, t0, vol(0.3), 0.005, 0.14)
+  osc.connect(lp).connect(g).connect(out)
+  osc.start(t0)
+  osc.stop(t0 + 0.24)
+}
+
+/** A hand catching fire / the pipe burning: an angry sizzle. */
+export const sizzle = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const src = ctx.createBufferSource()
+  src.buffer = noiseBuffer(ctx, 0.6)
+  const bp = ctx.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.setValueAtTime(3200, t0)
+  bp.frequency.exponentialRampToValueAtTime(1400, t0 + 0.5)
+  bp.Q.value = 0.8
+  const g = ctx.createGain()
+  g.gain.setValueAtTime(0.0001, t0)
+  g.gain.exponentialRampToValueAtTime(vol(0.4), t0 + 0.05)
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.55)
+  src.connect(bp).connect(g).connect(out)
+  src.start(t0)
+  src.stop(t0 + 0.65)
+}
+
+/** Shadow Jump: a relieved "phew" on a safe landing. A soft descending
+ *  breath — filtered noise falling in pitch, not a tone. */
+export const phew = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const src = ctx.createBufferSource()
+  src.buffer = noiseBuffer(ctx, 0.4)
+  const bp = ctx.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.setValueAtTime(1100, t0)
+  bp.frequency.exponentialRampToValueAtTime(500, t0 + 0.34)
+  bp.Q.value = 2.5
+  const g = ctx.createGain()
+  env(g, t0, vol(0.28), 0.06, 0.32)
+  src.connect(bp).connect(g).connect(out)
+  src.start(t0)
+  src.stop(t0 + 0.5)
+}
+
+/** Shadow Jump miss: a comical fire-alarm — two-tone warble. */
+export const alarm = (): void => {
+  if (silent()) return
+  const b = bus()
+  if (!b) return
+  const { ctx, out } = b
+  const t0 = ctx.currentTime
+  const g = ctx.createGain()
+  g.gain.value = 0
+  const osc = ctx.createOscillator()
+  osc.type = 'square'
+  osc.connect(g).connect(out)
+  // Warble between two pitches ~4 times.
+  const lo = 620, hi = 900
+  for (let i = 0; i < 8; i++) {
+    osc.frequency.setValueAtTime(i % 2 === 0 ? hi : lo, t0 + i * 0.08)
+  }
+  g.gain.setValueAtTime(0.0001, t0)
+  g.gain.exponentialRampToValueAtTime(vol(0.28), t0 + 0.02)
+  g.gain.setValueAtTime(vol(0.28), t0 + 0.58)
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.68)
+  osc.start(t0)
+  osc.stop(t0 + 0.72)
+}
+
 // ── Super Saiyan ──────────────────────────────────────────────────────────
 
 /**

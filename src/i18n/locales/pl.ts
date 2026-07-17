@@ -45,6 +45,32 @@ export default {
       'hint': 'Zgnieć każdego robaka, zanim czas minie',
       'splat': 'Chlast!'
     },
+    'mirage': {
+      'verb': 'Trzask!',
+      'hint': 'Uderz PRAWDZIWEGO skoczka, nie miraże',
+      'boop': 'Bop!'
+    },
+    'thermometer': {
+      'verb': 'Schłódź!',
+      'hint': 'Stukaj kostki lodu po kolei, gdy pierścienie się zamykają',
+      'boiling': 'Punkt wrzenia'
+    },
+    'potato': {
+      'verb': 'Rzuć!',
+      'hint': 'Stuknij pustą dłoń, by rzucić, zanim się sparzy',
+      'ouch': 'Au!'
+    },
+    'fan': {
+      'verb': 'Wachluj!',
+      'hint': 'Stukaj do rytmu, by odgonić upał',
+      'stress': 'Upał'
+    },
+    'shadow': {
+      'verb': 'Skacz!',
+      'hint': 'Stuknij cień, by zeskoczyć z gorącej rury',
+      'phew': 'Uff!',
+      'burn': 'Gorące!'
+    },
     'signal': {
       'verb': 'Nastrój!',
       'hint': 'Obracaj antenę, aż złapiesz sygnał',
