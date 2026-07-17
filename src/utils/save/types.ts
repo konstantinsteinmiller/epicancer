@@ -55,8 +55,6 @@ export type HydrateState =
 export interface HydrateNotice {
   /** Resolved hydrate state after this attempt. */
   state: HydrateState
-  /** Bonus coins applied as part of conflict-merge, if any. */
-  bonusCoinsAwarded?: number
   /** Short human-readable status useful for the on-screen banner. */
   reason?: string
 }

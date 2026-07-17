@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Baaslevel!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Ram om je krachtniveau te verhogen',
+      'pump': 'Pomp!',
+      'over': 'Het is over de 9000!'
+    },
+    'cat': {
+      'verb': 'Aai!',
+      'hint': 'Tik elke vonk als zijn ring sluit',
+      'zap': 'Zap!'
+    },
+    'window': {
+      'verb': 'Dicht!',
+      'hint': 'Sleep de hendel en klap hem dicht',
+      'slam': 'Klap!'
+    },
+    'flashlight': {
+      'verb': 'Sla!',
+      'hint': 'Sla er drie keer op in ritme',
+      'whack': 'Pats!'
+    },
+    'toast': {
+      'verb': 'Vang!',
+      'hint': 'Vang beide sneetjes in de lucht'
+    },
+    'soda': {
+      'verb': 'Tik!',
+      'hint': 'Tik 5 keer en trek dan het lipje',
+      'spray': 'Spat!'
+    },
+    'router': {
+      'verb': 'Aansluiten!',
+      'hint': 'Sleep de stekker in het stopcontact'
+    },
+    'mosquito': {
+      'verb': 'Mep!',
+      'hint': 'Tik precies als de ring dichtgaat',
+      'smack': 'Pats!'
+    },
+    'stomp': {
+      'verb': 'Vertrap!',
+      'hint': 'Plet elk beestje voordat de tijd om is',
+      'splat': 'Splat!'
+    },
+    'signal': {
+      'verb': 'Afstemmen!',
+      'hint': 'Draai de antenne tot je signaal vindt',
+      'tune': 'Zoek',
+      'hold': 'Vasthouden!'
+    }
+  },
+  'desk': {
+    'prompt': 'Spatie om te dromen'
+  },
+  'summary': {
+    'morning': 'Ochtend!',
+    'lightsOut': 'Licht uit.',
+    'ideas': 'ideeën van 3 uur waargemaakt',
+    'best': 'Beste:',
+    'newBest': 'Nieuw record!',
+    'again': 'Nog een nacht doorhalen?'
+  },
   'ads': {
     'watch': 'Bekijk', 'revive': 'Herleven', 'secondChance': 'Tweede kans', 'doubleCoins': '2× munten', 'plusCoins': '+{n} munten'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Hamsteraar', 'desc': 'Pak in totaal 250 itemkisten.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Annuleren',
   'close': 'Sluiten',
   'ok': 'Ok',

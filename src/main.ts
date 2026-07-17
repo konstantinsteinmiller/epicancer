@@ -14,7 +14,7 @@ import { initAds } from '@/use/useAds'
 import { installGamePauseAudio } from '@/use/useGamePauseAudio'
 import useUser, { isCrazyWeb, isWaveDash, isItch, isGlitch, isGameDistribution, isPlaygama, isGamepix, isGameMonetize, isYandex } from '@/use/useUser'
 import { isDebug } from '@/use/useMatch.ts'
-import { hasState, reloadEpicState } from '@/use/useEpicState'
+import { hasState, reloadMidnightState } from '@/use/useMidnightState'
 import { SaveManager } from '@/utils/save/SaveManager'
 import { resolveSaveStrategy } from '@/platforms/resolveSaveStrategy'
 import { installSaveStatus } from '@/use/useSaveStatus'
@@ -233,7 +233,7 @@ const bootstrap = async () => {
   // watcher (further down) reloads and switches. The watcher also calls
   // `reloadMawState()` defensively, so this is the early-flush companion, not
   // a replacement.
-  reloadEpicState()
+  reloadMidnightState()
 
   // ─── Background / close flush — critical for mobile webviews ───────────
   //
@@ -375,7 +375,7 @@ const bootstrap = async () => {
         // hydrated blob. This second call covers the case where hydrate
         // resolves a cloud value AFTER the early reload (Glitch's HTTP
         // strategy resolves out-of-band in some flows, etc.). Idempotent.
-        reloadEpicState()
+        reloadMidnightState()
         const hasStoredLanguage = hasState('spinner_user_language')
         const portalSeed = cgLocale ?? yaLocale
         if (!hasStoredLanguage && portalSeed && LANGUAGES.includes(portalSeed)) {

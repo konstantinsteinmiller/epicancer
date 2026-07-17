@@ -5,7 +5,7 @@ import type {
   SaveStrategy
 } from './types'
 import { isInternalKey } from './types'
-import { SAVE_KEYS } from './SaveMergePolicy'
+import { localLooksFresh as policyLocalLooksFresh } from './SaveMergePolicy'
 import { BlobStorage, type BlobStorageOptions } from './BlobStorage'
 
 // ─── SaveManager ───────────────────────────────────────────────────────────
@@ -396,13 +396,7 @@ const shouldRunSanityGuard = (state: HydrateState, local: LocalStorageAccessor):
   return localLooksFresh(local)
 }
 
-const localLooksFresh = (local: LocalStorageAccessor): boolean => {
-  const stage = parseInt(local.get(SAVE_KEYS.STAGE) ?? '1', 10) || 1
-  if (stage > 1) return false
-  const coins = parseInt(local.get(SAVE_KEYS.COINS) ?? '0', 10) || 0
-  if (coins > 0) return false
-  if (local.get(SAVE_KEYS.UPGRADES)) return false
-  return true
-}
+const localLooksFresh = (local: LocalStorageAccessor): boolean =>
+  policyLocalLooksFresh({ get: (k) => local.get(k) })
 
 const sleep = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms))

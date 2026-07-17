@@ -1,14 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import {
-  applyBonusCoins,
   computeMeta,
   decideMerge,
+  localLooksFresh,
   parseMeta,
   SAVE_KEYS,
   SCHEMA_VERSION,
   serializeMeta,
   type SaveMeta
 } from '@/utils/save/SaveMergePolicy'
+import { STATE_KEY } from '@/use/useMidnightState'
 
 // Tiny in-memory snapshot reader used by every test below. Lets each
 // scenario describe its localStorage state as a plain object literal.
@@ -16,67 +17,80 @@ const reader = (snap: Record<string, string>): { get: (k: string) => string | nu
   get: (k: string) => (k in snap ? snap[k]! : null)
 })
 
-const upgradesJson = (levels: Record<string, number> = {}): string =>
-  JSON.stringify({ levels })
+/** The real shape: every field lives INSIDE the one `midnight_state` blob, so
+ *  the policy has to read through it rather than off top-level keys. */
+const blob = (fields: Record<string, unknown>): Record<string, string> => ({
+  [STATE_KEY]: JSON.stringify(fields)
+})
 
 describe('SaveMergePolicy.computeMeta', () => {
-  it('returns score=500 for a fresh-defaults snapshot (stage 1, nothing else)', () => {
+  it('scores a fresh save at 0 — an empty save must never beat a real one', () => {
     const meta = computeMeta(reader({}), '2026-04-27T10:00:00Z')
     expect(meta).toEqual({
       savedAt: '2026-04-27T10:00:00Z',
-      progressScore: 500,
+      progressScore: 0,
       schemaVersion: SCHEMA_VERSION,
-      maxStage: 1
+      maxStage: 0
     })
   })
 
-  it('counts stage * 500', () => {
-    const meta = computeMeta(reader({ [SAVE_KEYS.STAGE]: '7' }))
+  it('counts bestScore * 500 and carries it as maxStage', () => {
+    const meta = computeMeta(reader(blob({ [SAVE_KEYS.BEST_SCORE]: 7 })))
     expect(meta.progressScore).toBe(7 * 500)
     expect(meta.maxStage).toBe(7)
   })
 
-  it('clamps stage at 1 when storage has 0 / negative / garbage', () => {
-    expect(computeMeta(reader({ [SAVE_KEYS.STAGE]: '0' })).progressScore).toBe(500)
-    expect(computeMeta(reader({ [SAVE_KEYS.STAGE]: '-3' })).progressScore).toBe(500)
-    expect(computeMeta(reader({ [SAVE_KEYS.STAGE]: 'abc' })).progressScore).toBe(500)
+  it('counts nights * 150 and bosses * 400', () => {
+    const meta = computeMeta(reader(blob({
+      [SAVE_KEYS.NIGHTS]: 4,
+      [SAVE_KEYS.BOSSES]: 2
+    })))
+    expect(meta.progressScore).toBe(4 * 150 + 2 * 400)
   })
 
-  it('counts every upgrade level at 150 each', () => {
-    const meta = computeMeta(reader({
-      [SAVE_KEYS.STAGE]: '1',
-      [SAVE_KEYS.UPGRADES]: upgradesJson({ maxLife: 3, chainLength: 2, sawDamage: 5 })
-    }))
-    // stage 1*500 + 10 levels * 150 = 500 + 1500 = 2000
-    expect(meta.progressScore).toBe(2000)
-  })
-
-  it('ignores negative / non-numeric upgrade values defensively', () => {
-    const meta = computeMeta(reader({
-      [SAVE_KEYS.UPGRADES]: JSON.stringify({
-        levels: { maxLife: -2, chainLength: 'broken', sawDamage: 4, coinMagnetMs: NaN, rotationSpeed: 3 }
-      })
-    }))
-    // Only `sawDamage: 4` and `rotationSpeed: 3` count → 7 * 150 = 1050; +500 stage = 1550
-    expect(meta.progressScore).toBe(1550)
-  })
-
-  it('combines stage + upgrades per the formula', () => {
-    const meta = computeMeta(reader({
-      [SAVE_KEYS.STAGE]: '12',
-      [SAVE_KEYS.UPGRADES]: upgradesJson({ maxLife: 5, chainLength: 5 })
-    }))
-    // 12*500 + 10*150
-    expect(meta.progressScore).toBe(6000 + 1500)
+  it('combines every term per the formula', () => {
+    const meta = computeMeta(reader(blob({
+      [SAVE_KEYS.BEST_SCORE]: 12,
+      [SAVE_KEYS.NIGHTS]: 9,
+      [SAVE_KEYS.BOSSES]: 3
+    })))
+    expect(meta.progressScore).toBe(12 * 500 + 9 * 150 + 3 * 400)
     expect(meta.maxStage).toBe(12)
   })
 
-  it('survives malformed JSON in upgrades key', () => {
-    const meta = computeMeta(reader({
-      [SAVE_KEYS.STAGE]: '3',
-      [SAVE_KEYS.UPGRADES]: '{not json'
-    }))
-    expect(meta.progressScore).toBe(3 * 500)
+  it('clamps negative / garbage values to 0 rather than scoring them', () => {
+    expect(computeMeta(reader(blob({ [SAVE_KEYS.BEST_SCORE]: -3 }))).progressScore).toBe(0)
+    expect(computeMeta(reader(blob({ [SAVE_KEYS.BEST_SCORE]: 'abc' }))).progressScore).toBe(0)
+  })
+
+  it('survives a malformed state blob', () => {
+    expect(computeMeta(reader({ [STATE_KEY]: '{not json' })).progressScore).toBe(0)
+  })
+
+  it('also reads values written as stray top-level keys (mid-migration client)', () => {
+    // `isPayloadKey` accepts bare `ma_*` keys, so a snapshot can legitimately
+    // carry them outside the blob; the score must still see them.
+    const meta = computeMeta(reader({ [SAVE_KEYS.BEST_SCORE]: '6' }))
+    expect(meta.progressScore).toBe(3000)
+  })
+})
+
+describe('SaveMergePolicy.localLooksFresh', () => {
+  it('is true for an empty snapshot', () => {
+    expect(localLooksFresh(reader({}))).toBe(true)
+  })
+
+  it('is false once ANY progress exists — this gates the boot sanity guard', () => {
+    expect(localLooksFresh(reader(blob({ [SAVE_KEYS.BEST_SCORE]: 1 })))).toBe(false)
+    expect(localLooksFresh(reader(blob({ [SAVE_KEYS.NIGHTS]: 1 })))).toBe(false)
+    expect(localLooksFresh(reader(blob({ [SAVE_KEYS.BOSSES]: 1 })))).toBe(false)
+  })
+
+  it('sees progress INSIDE the blob, not just at the top level', () => {
+    // The single-blob model means a top-level lookup would find nothing and
+    // call every returning player fresh — which would let a failed hydrate
+    // push empty defaults over their cloud save.
+    expect(localLooksFresh(reader(blob({ [SAVE_KEYS.NIGHTS]: 40 })))).toBe(false)
   })
 })
 
@@ -125,17 +139,16 @@ describe('SaveMergePolicy.decideMerge', () => {
     expect(decideMerge(null, meta({ progressScore: 5000 }))).toEqual({ kind: 'remote-only' })
   })
 
-  it('returns \'remote-wins\' with bonus when remote score > local score AND local had progress', () => {
+  it('returns \'remote-wins\' when remote score > local score', () => {
     const local = meta({ progressScore: 2000, maxStage: 4 })
     const remote = meta({ progressScore: 8000, maxStage: 12 })
-    // bonus = remote.maxStage * 50 = 12 * 50 = 600
-    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins', bonusCoins: 600 })
+    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins' })
   })
 
-  it('returns \'remote-wins\' with NO bonus when local was completely empty (score 0)', () => {
+  it('returns \'remote-wins\' when local was completely empty (score 0)', () => {
     const local = meta({ progressScore: 0, maxStage: 1 })
     const remote = meta({ progressScore: 8000, maxStage: 12 })
-    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins', bonusCoins: 0 })
+    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins' })
   })
 
   it('returns \'local-wins\' when local score > remote (player advanced offline)', () => {
@@ -144,10 +157,10 @@ describe('SaveMergePolicy.decideMerge', () => {
     expect(decideMerge(local, remote)).toEqual({ kind: 'local-wins' })
   })
 
-  it('returns \'remote-wins\' (bonus 0) when scores tie but remote savedAt is newer', () => {
+  it('returns \'remote-wins\' when scores tie but remote savedAt is newer', () => {
     const local = meta({ progressScore: 5000, savedAt: '2026-04-27T10:00:00Z' })
     const remote = meta({ progressScore: 5000, savedAt: '2026-04-27T11:00:00Z' })
-    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins', bonusCoins: 0 })
+    expect(decideMerge(local, remote)).toEqual({ kind: 'remote-wins' })
   })
 
   it('returns \'tie-keep-local\' when scores AND timestamps match', () => {
@@ -166,20 +179,5 @@ describe('SaveMergePolicy.decideMerge', () => {
     const local = meta({ progressScore: 5000, savedAt: 'garbage' })
     const remote = meta({ progressScore: 5000, savedAt: 'also garbage' })
     expect(decideMerge(local, remote)).toEqual({ kind: 'tie-keep-local' })
-  })
-})
-
-describe('SaveMergePolicy.applyBonusCoins', () => {
-  it('adds the bonus to whatever coin total is in storage', () => {
-    expect(applyBonusCoins(reader({ [SAVE_KEYS.COINS]: '300' }), 100)).toBe('400')
-  })
-
-  it('treats missing / unparseable coin storage as zero', () => {
-    expect(applyBonusCoins(reader({}), 250)).toBe('250')
-    expect(applyBonusCoins(reader({ [SAVE_KEYS.COINS]: 'oops' }), 250)).toBe('250')
-  })
-
-  it('clamps negative bonuses to zero (defensive)', () => {
-    expect(applyBonusCoins(reader({ [SAVE_KEYS.COINS]: '500' }), -100)).toBe('500')
   })
 })

@@ -216,13 +216,11 @@ export const loadAudioBuffer = async (src: string): Promise<AudioBuffer | null> 
 // off the live chain-upgrade level; when the player toggles between
 // them mid-round, the chain bitmap that wasn't loaded yet causes that
 // flash. Preloading both eliminates the swap pop.
+// Midnight Analog draws every pixel of gameplay procedurally (see
+// `use/ink/`), so there are no sprite bitmaps on the critical path at all —
+// the notebook, the desk and every doodle are canvas paths generated at
+// runtime. The only bitmap the first paint needs is the splash logo.
 const CRITICAL_IMAGE_SRCS: ReadonlyArray<string> = [
-  // Grid tiles drawn every frame in the iso renderer's hot path — decode
-  // before first paint so the floor never flashes its procedural fallback.
-  '/images/props/grid-tile-1.webp',
-  '/images/props/grid-tile-2.webp',
-  '/images/props/grid-tile-3.webp',
-  '/images/props/coin_128x128.webp',
   // Splash logo — decoded before the splash mounts so the FLogoProgress
   // <img> never paints a blank box on first frame.
   '/images/logo/logo_256x256.webp'
@@ -247,16 +245,15 @@ const decodeImage = (src: string): Promise<void> => {
 
 // ─── Off-hot-path background warm-up ───────────────────────────────────────
 // Runs ONCE, only after the splash has hidden (hot path fully done + first
-// paint). Strict priority order so the hot path is never contended:
-//   1. gameplay SFX decode (sounds are NOT in the hot path — they decode on
-//      first play anyway; this just warms them so the first burst is smooth),
-//   2. the parchment-ribbon result-screen bitmap (needed before any win/lose
-//      screen, but never on the first frame), then
-//   3. the remaining (non-selected) ball skins — lowest priority, since the
-//      player only sees them if they open the Skin shop.
+// paint). Midnight Analog's visuals are generated, not loaded, so the only
+// warm-up work left is audio:
+//   1. the sampled SFX the notebook still uses (page rips, stamps, chimes) —
+//      they decode on first play anyway; this just warms them so the first
+//      burst doesn't stutter,
+//   2. the paper-grain tile the ink renderer bakes once per resolution — cheap
+//      but ~3 ms of canvas work we'd rather not pay on the first page flip.
 // All dynamic-imported so none of this is linked into the entry chunk.
 let backgroundWarmStarted = false
-const RIBBON_SRC = 'images/bg/parchment-ribbon_553x188.webp'
 
 const runBackgroundWarmup = (): void => {
   if (backgroundWarmStarted) return
@@ -268,19 +265,12 @@ const runBackgroundWarmup = (): void => {
       await sp.preloadGameplaySounds()
     } catch { /* non-critical */ }
 
-    let art: typeof import('@/use/useEpicArt') | null = null
-    try { art = await import('@/use/useEpicArt') } catch { /* non-critical */ }
-
-    // 2. Parchment ribbon — before the (already-deferred) remaining skins.
-    try { await art?.warmImages?.([RIBBON_SRC]) } catch { /* non-critical */ }
-
-    // 3. Every other ball skin (the selected one was warmed in the hot path).
+    // 2. Bake the paper grain tile so the first notebook page doesn't pay for
+    //    it mid-transition. Falls back to generating on demand if this throws.
     try {
-      const skins = await import('@/use/useEpicSkins')
-      const selected = skins.selectedSkinId.value
-      const rest = skins.SKINS.filter((s) => s.id !== selected).map((s) => s.src)
-      await art?.warmImages?.(rest)
-    } catch { /* non-critical */ }
+      const paper = await import('@/use/ink/paper')
+      paper.warmGrainTile()
+    } catch { /* non-critical: the tile bakes lazily on first draw */ }
   })()
 }
 
@@ -288,31 +278,15 @@ export default () => {
   const preloadAssets = async (): Promise<void> => {
     loadingProgress.value = 0
     areAllAssetsLoaded.value = false
-    // ── HOT PATH ── Only what the FIRST gameplay frame needs: the grid /
-    // prop sprites and the player's CURRENTLY-EQUIPPED ball skin. No sounds,
-    // no bg-music, no non-selected skins, no result-screen art — those all
-    // warm in `runBackgroundWarmup()` after the splash hides.
+    // ── HOT PATH ── Midnight Analog needs no gameplay bitmaps at all: the
+    // notebook, the desk and every doodle are procedural canvas paths. So the
+    // hot path is just the splash logo, and the game is playable within a
+    // frame of the bundle landing. SFX decode and the paper-grain bake both
+    // defer to `runBackgroundWarmup()` after the splash hides.
     //
-    // The dynamic import keeps the renderer chunk off the entry bundle; it
-    // streams in PARALLEL with the static splash render, so the player sees the
-    // animated logo immediately while the gameplay bytes arrive.
-    const stageTask = (async () => {
-      try {
-        const art = await import('@/use/useEpicArt')
-        await art.warmTileImages?.()
-        // Warm ONLY the selected skin in the hot path (it's drawn on the ball
-        // from the first frame). The rest defer to the background warm-up.
-        try {
-          const skins = await import('@/use/useEpicSkins')
-          await art.warmImages?.([skins.skinById(skins.selectedSkinId.value).src])
-        } catch { /* selected skin falls back to the default ball texture */ }
-      } catch { /* non-critical: renderer falls back to procedural tiles */ }
-    })()
-    // Kick decoding in parallel; resolve when every critical sprite is
-    // ready. `Promise.allSettled` swallows individual asset errors so a
-    // 404 on one bitmap doesn't strand the splash screen.
-    const imageTasks = CRITICAL_IMAGE_SRCS.map(decodeImage)
-    const tasks: Promise<unknown>[] = [...imageTasks, stageTask]
+    // `Promise.allSettled` swallows individual asset errors so a 404 on one
+    // bitmap doesn't strand the splash screen.
+    const tasks: Promise<unknown>[] = CRITICAL_IMAGE_SRCS.map(decodeImage)
     let done = 0
     for (const task of tasks) {
       task.then(() => {

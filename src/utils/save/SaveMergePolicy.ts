@@ -9,21 +9,23 @@
 // the player's actual keys. The blob lets the next hydrate score local vs.
 // remote and pick a winner deterministically without prompting.
 //
-// Score formula (locked with product):
-//   stage              × 500
-// + totalUpgradeLevels × 150
-// + ownedNormalSkins   × 250
-// + ownedSpecialSkins  × 1500
+// Score formula:
+//   bestScore      × 500   (deepest single night — the headline record)
+// + nightsSurvived × 150   (breadth of play)
+// + bossesCleared  × 400   (the rarest achievement in the game)
+//
+// Midnight Analog has no currency, no upgrades and no unlockables, so the
+// score is a pure "how much of this player's history would we destroy"
+// measure. `maxStage` in the meta blob carries `bestScore` — it keeps the
+// field name the save layer and its tests already speak.
 //
 // Conflict policy:
 //   - higher score wins
 //   - tie on score → newer savedAt wins
 //   - same time too → keep local (no needless writes)
-//   - if remote wins and local had ANY progress (score > 0), the player
-//     gets bonus coins = winner.maxStage × 50 to soften the loss
 
-import { STAGE_KEY, COINS_KEY, UPGRADES_KEY } from '@/keys'
-import { STATE_KEY } from '@/use/useEpicState'
+import { BEST_SCORE_KEY, NIGHTS_SURVIVED_KEY, BOSSES_CLEARED_KEY } from '@/keys'
+import { STATE_KEY } from '@/use/useMidnightState'
 
 /** Where the meta blob is stored in localStorage / on the remote backend.
  *  NOT prefixed with `__save_internal__` — this key needs to round-trip
@@ -48,22 +50,10 @@ export interface SaveMeta {
   /** Output of the score formula above. */
   progressScore: number
   schemaVersion: number
-  /** Highest stage the save represents — used to compute conflict bonus. */
+  /** Best single-night score the save represents. Named `maxStage` because
+   *  the strategies and the backup layer already speak that field; Midnight
+   *  Analog has no stages, so it carries `ma_best_score`. */
   maxStage: number
-  /**
-   * Cloud `savedAt` for which this client already received the conflict
-   * bonus. Prevents repeat farming: if a player force-closes and reopens
-   * (cloud unchanged, local possibly cleared), the strategy still sees
-   * `remote-wins` would award `+N coins` — but if `bonusReceivedFor`
-   * matches the cloud's `savedAt`, the bonus is suppressed because we
-   * already paid it out. The flag is written into the META blob and
-   * round-trips through cloud + IDB backup, so it survives whichever
-   * partition the OS happens to clear.
-   *
-   * Optional for back-compat with legacy save blobs that predate this
-   * field — `parseMeta` accepts records without it.
-   */
-  bonusReceivedFor?: string
 }
 
 /** Narrow read-only view over a localStorage snapshot. */
@@ -74,15 +64,18 @@ export interface SnapshotReader {
 /**
  * Hydrate-time merge resolution. The SaveManager's job is to:
  *   - apply the chosen side's keys to local
- *   - if `bonusCoins > 0`, add that to the merged COINS_KEY value
  *   - schedule a flush back to remote when the chosen side is local
+ *
+ * Epicrolla softened a remote-wins loss by paying the player bonus coins.
+ * Midnight Analog has no currency to pay them in — a lost save costs a
+ * high-score line, not a purse — so a losing side is simply overwritten.
  */
 export type MergeResolution =
-/** Remote had higher progress; overwrite local. Bonus may be 0 if local was empty. */
-  | { kind: 'remote-wins'; bonusCoins: number }
+/** Remote had higher progress; overwrite local. */
+  | { kind: 'remote-wins' }
   /** Local had higher progress; keep local and push it to remote on next flush. */
   | { kind: 'local-wins' }
-  /** Local was empty; remote is the seed. Same as remote-wins but no bonus and no "loss". */
+  /** Local was empty; remote is the seed. Same as remote-wins but no "loss". */
   | { kind: 'remote-only' }
   /** Remote returned no data; nothing to merge. */
   | { kind: 'local-only' }
@@ -135,24 +128,20 @@ export const computeMeta = (
   read: SnapshotReader,
   savedAt: string = new Date().toISOString()
 ): SaveMeta => {
-  const stage = Math.max(1, safeInt(readField(read, STAGE_KEY), 1))
-
-  const upgrades = safeJson<{ levels?: Record<string, number> }>(
-    readField(read, UPGRADES_KEY),
-    {}
-  )
-  let upgradeLevels = 0
-  if (upgrades.levels) {
-    for (const v of Object.values(upgrades.levels)) {
-      if (typeof v === 'number' && Number.isFinite(v) && v > 0) upgradeLevels += v
-    }
-  }
+  // A fresh save floors at 0, not 1 — unlike a stage number, "best night" of
+  // zero is a real, meaningful value (nobody has survived anything yet), and
+  // flooring it at 1 would give an empty save a non-zero progressScore and let
+  // it beat a genuinely-empty remote for no reason.
+  const bestScore = Math.max(0, safeInt(readField(read, BEST_SCORE_KEY), 0))
+  const nights = Math.max(0, safeInt(readField(read, NIGHTS_SURVIVED_KEY), 0))
+  const bosses = Math.max(0, safeInt(readField(read, BOSSES_CLEARED_KEY), 0))
 
   const progressScore =
-    stage * 500
-    + upgradeLevels * 150
+    bestScore * 500
+    + nights * 150
+    + bosses * 400
 
-  return { savedAt, progressScore, schemaVersion: SCHEMA_VERSION, maxStage: stage }
+  return { savedAt, progressScore, schemaVersion: SCHEMA_VERSION, maxStage: bestScore }
 }
 
 /**
@@ -176,16 +165,12 @@ export const parseMeta = (raw: string | null | undefined): SaveMeta | null => {
     typeof m.schemaVersion !== 'number' || !Number.isFinite(m.schemaVersion) ||
     typeof m.maxStage !== 'number' || !Number.isFinite(m.maxStage)
   ) return null
-  const out: SaveMeta = {
+  return {
     savedAt: m.savedAt,
     progressScore: m.progressScore,
     schemaVersion: m.schemaVersion,
     maxStage: m.maxStage
   }
-  if (typeof m.bonusReceivedFor === 'string') {
-    out.bonusReceivedFor = m.bonusReceivedFor
-  }
-  return out
 }
 
 export const serializeMeta = (meta: SaveMeta): string => JSON.stringify(meta)
@@ -195,10 +180,10 @@ export const serializeMeta = (meta: SaveMeta): string => JSON.stringify(meta)
  *
  * Rules (in order):
  *   1. No remote → 'local-only'
- *   2. No local  → 'remote-only'  (nothing to lose; no bonus needed)
- *   3. remote.score > local.score → 'remote-wins' with bonus = remote.maxStage * 50 if local had any progress
+ *   2. No local  → 'remote-only'
+ *   3. remote.score > local.score → 'remote-wins'
  *   4. local.score > remote.score → 'local-wins'
- *   5. Equal scores → newer savedAt wins (no bonus on score-tie wins)
+ *   5. Equal scores → newer savedAt wins
  *   6. Equal everything → 'tie-keep-local'
  */
 export const decideMerge = (
@@ -209,35 +194,19 @@ export const decideMerge = (
   if (!localMeta) return { kind: 'remote-only' }
 
   if (remoteMeta.progressScore > localMeta.progressScore) {
-    const bonus = localMeta.progressScore > 0 ? remoteMeta.maxStage * 50 : 0
-    return { kind: 'remote-wins', bonusCoins: bonus }
+    return { kind: 'remote-wins' }
   }
   if (localMeta.progressScore > remoteMeta.progressScore) {
     return { kind: 'local-wins' }
   }
 
-  // Equal scores → newer timestamp wins. No bonus on a score-tie win
-  // because no progress was actually surpassed.
+  // Equal scores → newer timestamp wins.
   const lt = Date.parse(localMeta.savedAt)
   const rt = Date.parse(remoteMeta.savedAt)
   if (Number.isFinite(rt) && Number.isFinite(lt) && rt > lt) {
-    return { kind: 'remote-wins', bonusCoins: 0 }
+    return { kind: 'remote-wins' }
   }
   return { kind: 'tie-keep-local' }
-}
-
-/**
- * Add the bonus to the local coin total. Returns the new value as a
- * string ready to be written back to COINS_KEY. Caller does the write.
- */
-export const applyBonusCoins = (read: SnapshotReader, bonus: number): string => {
-  const current = safeInt(read.get(COINS_KEY), 0)
-  return String(current + Math.max(0, bonus))
-}
-
-/** Bonus-coin path: read the sub-field from maw_state if it exists. */
-export const readCoinTotal = (read: SnapshotReader): number => {
-  return safeInt(readField(read, COINS_KEY), 0)
 }
 
 /**
@@ -259,15 +228,15 @@ export const readCoinTotal = (read: SnapshotReader): number => {
  */
 /**
  * Single-blob model: every persisted gameplay value lives inside the
- * `epicrolla_state` localStorage entry (see `useEpicState.ts`). The cloud
+ * `midnight_state` localStorage entry (see `useMidnightState.ts`). The cloud
  * mirrors exactly two keys — the state blob and the meta blob.
  *
- * Individual `epic_*` game keys plus the reused-platform `spinner_*` / `ca_*`
+ * Individual `ma_*` game keys plus the reused-platform `spinner_*` / `ca_*`
  * keys are also accepted as payload so any stray per-key write (defensive, or
  * a mid-migration snapshot from an older client) round-trips safely instead of
  * being silently dropped.
  */
-const PAYLOAD_PREFIXES = ['epic_', 'spinner_', 'ca_'] as const
+const PAYLOAD_PREFIXES = ['ma_', 'spinner_', 'ca_'] as const
 
 export const isPayloadKey = (key: string): boolean => {
   if (key === META_KEY) return true
@@ -280,7 +249,22 @@ export const isPayloadKey = (key: string): boolean => {
 
 // Re-exported so tests / other modules don't have to re-declare them.
 export const SAVE_KEYS = {
-  STAGE: STAGE_KEY,
-  COINS: COINS_KEY,
-  UPGRADES: UPGRADES_KEY
+  BEST_SCORE: BEST_SCORE_KEY,
+  NIGHTS: NIGHTS_SURVIVED_KEY,
+  BOSSES: BOSSES_CLEARED_KEY
 } as const
+
+/**
+ * True when local holds nothing worth protecting — no record, no nights, no
+ * boss clears. Drives the SaveManager's sanity guard: if a hydrate FAILED and
+ * local still looks like fresh defaults, we must not push those defaults over
+ * a cloud save that may hold a real history.
+ *
+ * Reads through `readField` so it sees values inside the `midnight_state`
+ * blob, which is where they actually live — a direct top-level `local.get`
+ * would never find them and would call every save fresh.
+ */
+export const localLooksFresh = (read: SnapshotReader): boolean =>
+  safeInt(readField(read, BEST_SCORE_KEY), 0) <= 0
+  && safeInt(readField(read, NIGHTS_SURVIVED_KEY), 0) <= 0
+  && safeInt(readField(read, BOSSES_CLEARED_KEY), 0) <= 0

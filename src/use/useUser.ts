@@ -4,7 +4,7 @@ import { mobileCheck } from '@/utils/function'
 import { DIFFICULTY, type Difficulties } from '@/utils/enums'
 import { isDbInitialized, isSplashScreenVisible } from '@/use/useMatch'
 import { saveDataVersion } from '@/use/useSaveStatus'
-import { getState, setState, hasState } from '@/use/useEpicState'
+import { getState, setState, hasState } from '@/use/useMidnightState'
 
 export const windowWidth = ref(window.innerWidth)
 export const windowHeight = ref(window.innerHeight)
@@ -46,9 +46,9 @@ export const version: string = APP_VERSION
 // Replaces the old `useUserDb` IndexedDB layer. CG QA flagged the
 // `user_db` / `user_os` store as "data saved locally" — and it was
 // holding a pile of CardQuest relics (userHand, userCollection,
-// userCampaign, userQuestCards, etc.) that epicrolla never reads.
+// userCampaign, userQuestCards, etc.) that this game never reads.
 //
-// epicrolla only persists FOUR user settings:
+// Midnight Analog only persists FOUR user settings:
 //   • difficulty / sound volume / music volume / locale
 //
 // They live in localStorage under the keys below. On a CrazyGames build
@@ -94,7 +94,8 @@ const userSoundVolume: Ref<number> = ref(readNumber(SOUND_KEY, DEFAULT_SOUND_VOL
 const userMusicVolume: Ref<number> = ref(readNumber(MUSIC_KEY, DEFAULT_MUSIC_VOLUME))
 const userLanguage: Ref<string> = ref(readString(LANGUAGE_KEY, 'en'))
 // Difficulty defaults to MEDIUM; Easy slows travel speed −20%, Hard +10%
-// (applied in useEpicGame's per-frame speed calc via `difficultySpeedFactor`).
+// Currently unused by Midnight Analog: the night's difficulty comes from the
+// run orchestrator's escalation curve, not from a player-chosen setting.
 const userDifficulty: Ref<Difficulties> = ref(readString<Difficulties>(DIFFICULTY_KEY, DIFFICULTY.MEDIUM))
 // Background-music track — defaults to 'trance' (Trance Tunnel).
 const userMusicTrack: Ref<MusicTrack> = ref(readString<MusicTrack>(MUSIC_TRACK_KEY, 'trance'))

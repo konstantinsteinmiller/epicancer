@@ -42,7 +42,7 @@ import type {
   SaveStrategy
 } from './types'
 import { isInternalKey } from './types'
-import { STATE_KEY } from '@/use/useEpicState'
+import { STATE_KEY } from '@/use/useMidnightState'
 import { META_KEY } from './SaveMergePolicy'
 import { isDebug } from '@/use/useMatch'
 import { getYandexPlayer } from '@/utils/yandexPlugin'

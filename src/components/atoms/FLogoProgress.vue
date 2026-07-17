@@ -16,7 +16,7 @@
         div(:style="sizeStyle")
           img(
             :src="logoSrc"
-            alt="epicrolla"
+            :alt="t('gameName')"
             class="w-full h-full object-contain"
             draggable="false"
           )

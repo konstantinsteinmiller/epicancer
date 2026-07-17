@@ -1,6 +1,6 @@
 import type { I18n } from 'vue-i18n'
 import { LANGUAGES } from '@/utils/enums'
-import { getState } from '@/use/useEpicState'
+import { getState } from '@/use/useMidnightState'
 
 /**
  * Locale loader — lazy, code-split, cache-safe.

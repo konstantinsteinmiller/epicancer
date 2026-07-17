@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Livello boss!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Martella per aumentare la potenza',
+      'pump': 'Pompa!',
+      'over': 'È oltre 9000!'
+    },
+    'cat': {
+      'verb': 'Accarezza!',
+      'hint': 'Tocca ogni scintilla quando l\'anello si chiude',
+      'zap': 'Zap!'
+    },
+    'window': {
+      'verb': 'Chiudi!',
+      'hint': 'Trascina la maniglia e sbattila',
+      'slam': 'Sbam!'
+    },
+    'flashlight': {
+      'verb': 'Colpisci!',
+      'hint': 'Colpiscila tre volte a ritmo',
+      'whack': 'Paf!'
+    },
+    'toast': {
+      'verb': 'Prendi!',
+      'hint': 'Prendi entrambe le fette al volo'
+    },
+    'soda': {
+      'verb': 'Tocca!',
+      'hint': 'Tocca 5 volte, poi apri la linguetta',
+      'spray': 'Splat!'
+    },
+    'router': {
+      'verb': 'Collega!',
+      'hint': 'Trascina la spina nella presa'
+    },
+    'mosquito': {
+      'verb': 'Schiaccia!',
+      'hint': 'Tocca appena l’anello si chiude',
+      'smack': 'Sciaff!'
+    },
+    'stomp': {
+      'verb': 'Schiaccia!',
+      'hint': 'Schiaccia ogni insetto prima che scada il tempo',
+      'splat': 'Splat!'
+    },
+    'signal': {
+      'verb': 'Sintonizza!',
+      'hint': 'Ruota l’antenna per trovare il segnale',
+      'tune': 'Cerca',
+      'hold': 'Tieni!'
+    }
+  },
+  'desk': {
+    'prompt': 'Premi spazio per sognare'
+  },
+  'summary': {
+    'morning': 'Mattino!',
+    'lightsOut': 'Luci spente.',
+    'ideas': 'idee delle 3 di notte realizzate',
+    'best': 'Record:',
+    'newBest': 'Nuovo record!',
+    'again': 'Un’altra notte in bianco?'
+  },
   'ads': {
     'watch': 'Guarda', 'revive': 'Rinasci', 'secondChance': 'Seconda chance', 'doubleCoins': '2× monete', 'plusCoins': '+{n} monete'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Accumulatore', 'desc': 'Afferra 250 casse oggetto in totale.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Annulla',
   'close': 'Chiudi',
   'ok': 'Ok',

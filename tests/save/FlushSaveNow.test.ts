@@ -3,19 +3,19 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // ─── flushSaveNow — immediate checkpoint flush (the CG "stage lost on reload"
 // regression) ──────────────────────────────────────────────────────────────
 //
-// On the CrazyGames cloud-only build, a stage advance writes the new stage into
-// `maw_state` but the push to `sdk.data` only fires after the persist (~200ms)
-// + strategy-flush (~250ms) debounces, and the async cloud write then takes
-// time to land. A player who clears a stage and reloads a moment later beat
-// that pipeline → reload restored the OLD stage.
+// On the CrazyGames cloud-only build, finishing a night writes the new record
+// into `midnight_state` but the push to `sdk.data` only fires after the persist
+// (~200ms) + strategy-flush (~250ms) debounces, and the async cloud write then
+// takes time to land. A player who survives a personal best and reloads a
+// moment later beat that pipeline → reload restored the OLD record.
 //
-// `flushSaveNow()` (called from `persistStage`) forces the whole pipeline to
-// drain synchronously-as-possible: write `maw_state` now → SaveManager proxy →
-// strategy dirty → `manager.flush()` → backend. This test proves a stage write
-// reaches the (fake) backend right after `flushSaveNow()` WITHOUT advancing any
-// timers — i.e. it does not wait for either debounce.
+// `flushSaveNow()` (called at hard checkpoints) forces the whole pipeline to
+// drain synchronously-as-possible: write `midnight_state` now → SaveManager
+// proxy → strategy dirty → `manager.flush()` → backend. This test proves a
+// write reaches the (fake) backend right after `flushSaveNow()` WITHOUT
+// advancing any timers — i.e. it does not wait for either debounce.
 
-const STATE_KEY = 'epicrolla_state'
+const STATE_KEY = 'midnight_state'
 
 const makeFakeData = (seed: Record<string, string> = {}) => {
   const store = new Map<string, string>(Object.entries(seed))
@@ -51,7 +51,7 @@ describe('flushSaveNow — immediate flush on a hard checkpoint', () => {
     const data = makeFakeData()
     await bootCloudOnly(data)
 
-    const { setState } = await import('@/use/useEpicState')
+    const { setState } = await import('@/use/useMidnightState')
     const { flushSaveNow } = await import('@/use/useSaveStatus')
 
     // A level change writes the new stage into maw_state (still on the debounce
@@ -70,7 +70,7 @@ describe('flushSaveNow — immediate flush on a hard checkpoint', () => {
     const data = makeFakeData()
     await bootCloudOnly(data)
 
-    const { setState } = await import('@/use/useEpicState')
+    const { setState } = await import('@/use/useMidnightState')
     const { flushSaveNow } = await import('@/use/useSaveStatus')
 
     setState('spinner_coins', 250)
@@ -90,42 +90,44 @@ describe('flushSaveNow — immediate flush on a hard checkpoint', () => {
 const settle = () => new Promise((r) => setTimeout(r, 0))
 
 describe('discrete progression events flush to the backend immediately', () => {
-  it('buying an upgrade flushes without waiting for the debounce', async () => {
+  it('surviving a personal-best night flushes without waiting for the debounce', async () => {
     const data = makeFakeData()
     await bootCloudOnly(data)
-    const { default: useEpicProgress } = await import('@/use/useEpicProgress')
-    const { default: useEpicConfig } = await import('@/use/useEpicConfig')
-    const prog = useEpicProgress()
-    useEpicConfig().addCoins(10_000)
-
-    expect(prog.buyUpgrade('powerupDuration')).toBe(true)
-    await settle()
-
-    const blob = JSON.parse(data.store.get(STATE_KEY) || '{}')
-    expect(blob.epic_upgrades?.levels?.powerupDuration).toBe(1)
-  })
-
-  it('advancing a stage flushes immediately', async () => {
-    const data = makeFakeData()
-    await bootCloudOnly(data)
-    const { default: useEpicProgress } = await import('@/use/useEpicProgress')
-    const prog = useEpicProgress()
-
-    prog.advanceStage()
-    await settle()
-
-    const blob = JSON.parse(data.store.get(STATE_KEY) || '{}')
-    expect(blob.epic_stage).toBe(2)
-  })
-
-  it('a coin change does NOT flush immediately — it stays throttled', async () => {
-    const data = makeFakeData()
-    await bootCloudOnly(data)
-    const { default: useEpicConfig } = await import('@/use/useEpicConfig')
+    const { recordNightEnd } = await import('@/use/useMidnightProgress')
     const { flushSaveNow } = await import('@/use/useSaveStatus')
-    const cfg = useEpicConfig()
 
-    cfg.addCoins(123)
+    expect(recordNightEnd(12)).toBe(true) // 12 > the fresh-default 0 → new best
+    await flushSaveNow()
+    await settle()
+
+    const blob = JSON.parse(data.store.get(STATE_KEY) || '{}')
+    expect(blob.ma_best_score).toBe(12)
+    expect(blob.ma_nights_survived).toBe(1)
+  })
+
+  it('a sub-record night still banks the nights-survived counter', async () => {
+    const data = makeFakeData()
+    await bootCloudOnly(data)
+    const { recordNightEnd } = await import('@/use/useMidnightProgress')
+    const { flushSaveNow } = await import('@/use/useSaveStatus')
+
+    recordNightEnd(9)
+    expect(recordNightEnd(4)).toBe(false) // 4 < 9 → record untouched
+    await flushSaveNow()
+    await settle()
+
+    const blob = JSON.parse(data.store.get(STATE_KEY) || '{}')
+    expect(blob.ma_best_score).toBe(9)
+    expect(blob.ma_nights_survived).toBe(2)
+  })
+
+  it('a per-micro-game tally does NOT flush immediately — it stays throttled', async () => {
+    const data = makeFakeData()
+    await bootCloudOnly(data)
+    const { recordGameResult } = await import('@/use/useMidnightProgress')
+    const { flushSaveNow } = await import('@/use/useSaveStatus')
+
+    recordGameResult('router', true)
     await settle()
     // Still on the throttle — nothing reached the cloud within a tick.
     expect(data.store.get(STATE_KEY)).toBeUndefined()
@@ -133,24 +135,25 @@ describe('discrete progression events flush to the backend immediately', () => {
     // …but a later checkpoint (or the next discrete event) carries it.
     await flushSaveNow()
     const blob = JSON.parse(data.store.get(STATE_KEY) || '{}')
-    expect(blob.epic_coins).toBe(123)
+    expect(blob.ma_game_stats?.router).toEqual({ wins: 1, plays: 1 })
+    expect(blob.ma_ideas_played).toBe(1)
   })
 })
 
-describe('coin persist throttle — 2.5s max-wait', () => {
+describe('per-round persist throttle — 2.5s max-wait', () => {
   it('forces a localStorage write within ~2.5s of a continuous change stream', async () => {
     vi.useFakeTimers()
     try {
-      const { setState } = await import('@/use/useEpicState')
-      // Coins tick every 100ms — faster than the 200ms trailing debounce, so a
-      // pure debounce would never fire. The max-wait must force a write by 2.5s.
+      const { setState } = await import('@/use/useMidnightState')
+      // A run's score ticks faster than the 200ms trailing debounce, so a pure
+      // debounce would never fire. The max-wait must force a write by 2.5s.
       for (let t = 100; t <= 2000; t += 100) {
-        setState('spinner_coins', t)
+        setState('ma_ideas_played', t)
         vi.advanceTimersByTime(100)
       }
       expect(window.localStorage.getItem(STATE_KEY)).toBeNull() // not yet (under 2.5s)
 
-      setState('spinner_coins', 2100)
+      setState('ma_ideas_played', 2100)
       vi.advanceTimersByTime(600) // cross the 2.5s cap
       expect(window.localStorage.getItem(STATE_KEY)).not.toBeNull()
     } finally {

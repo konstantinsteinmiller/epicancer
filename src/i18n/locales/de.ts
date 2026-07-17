@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Bossrunde!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Hämmere, um dein Kraftlevel zu steigern',
+      'pump': 'Pump!',
+      'over': 'Es ist über 9000!'
+    },
+    'cat': {
+      'verb': 'Streicheln!',
+      'hint': 'Tippe jeden Funken, wenn sein Ring zugeht',
+      'zap': 'Zack!'
+    },
+    'window': {
+      'verb': 'Zu!',
+      'hint': 'Zieh den Griff rüber und knall es zu',
+      'slam': 'Zu!'
+    },
+    'flashlight': {
+      'verb': 'Klopf!',
+      'hint': 'Klopf sie dreimal im Rhythmus',
+      'whack': 'Klatsch!'
+    },
+    'toast': {
+      'verb': 'Fang!',
+      'hint': 'Fang beide Scheiben in der Luft'
+    },
+    'soda': {
+      'verb': 'Tipp!',
+      'hint': 'Tippe 5-mal, dann öffne die Dose',
+      'spray': 'Platsch!'
+    },
+    'router': {
+      'verb': 'Einstecken!',
+      'hint': 'Zieh den Stecker in die Buchse'
+    },
+    'mosquito': {
+      'verb': 'Klatsch!',
+      'hint': 'Tippe genau wenn der Ring zugeht',
+      'smack': 'Klatsch!'
+    },
+    'stomp': {
+      'verb': 'Zertreten!',
+      'hint': 'Zerquetsche jeden Käfer, bevor die Zeit abläuft',
+      'splat': 'Platsch!'
+    },
+    'signal': {
+      'verb': 'Einstellen!',
+      'hint': 'Dreh die Antenne bis das Signal kommt',
+      'tune': 'Suche',
+      'hold': 'Halt!'
+    }
+  },
+  'desk': {
+    'prompt': 'Leertaste zum Träumen'
+  },
+  'summary': {
+    'morning': 'Morgen!',
+    'lightsOut': 'Licht aus.',
+    'ideas': '3-Uhr-Ideen zum Leben erweckt',
+    'best': 'Beste:',
+    'newBest': 'Neuer Rekord!',
+    'again': 'Noch eine Nacht?'
+  },
   'ads': {
     'watch': 'Ansehen', 'revive': 'Wiederbeleben', 'secondChance': 'Zweite Chance', 'doubleCoins': '2× Münzen', 'plusCoins': '+{n} Münzen'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Hamsterer', 'desc': 'Schnapp dir insgesamt 250 Item-Boxen.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Abbrechen',
   'close': 'Schließen',
   'ok': 'Ok',

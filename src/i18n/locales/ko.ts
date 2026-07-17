@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': '보스 스테이지!',
+    'saiyan': {
+      'verb': '아아악!',
+      'hint': '연타해서 파워 레벨을 올려',
+      'pump': '펌프!',
+      'over': '9000이 넘었어!'
+    },
+    'cat': {
+      'verb': '쓰다듬어!',
+      'hint': '고리가 닫힐 때 불꽃을 탭',
+      'zap': '찌릿!'
+    },
+    'window': {
+      'verb': '닫아!',
+      'hint': '손잡이를 당겨 쾅 닫아',
+      'slam': '쾅!'
+    },
+    'flashlight': {
+      'verb': '때려!',
+      'hint': '리듬에 맞춰 세 번 때려',
+      'whack': '퍽!'
+    },
+    'toast': {
+      'verb': '잡아!',
+      'hint': '공중에서 토스트 두 조각을 잡아'
+    },
+    'soda': {
+      'verb': '탭!',
+      'hint': '5번 탭하고 탭을 따',
+      'spray': '철퍽!'
+    },
+    'router': {
+      'verb': '연결해!',
+      'hint': '플러그를 콘센트로 끌어다 놓아'
+    },
+    'mosquito': {
+      'verb': '때려!',
+      'hint': '원이 닫히는 순간 탭',
+      'smack': '찰싹!'
+    },
+    'stomp': {
+      'verb': '밟아!',
+      'hint': '시간이 끝나기 전에 벌레를 다 밟아',
+      'splat': '철퍽!'
+    },
+    'signal': {
+      'verb': '주파수를 맞춰!',
+      'hint': '안테나를 돌려 신호를 찾아',
+      'tune': '탐색',
+      'hold': '버텨!'
+    }
+  },
+  'desk': {
+    'prompt': '스페이스를 눌러 꿈으로'
+  },
+  'summary': {
+    'morning': '아침이다!',
+    'lightsOut': '소등.',
+    'ideas': '개의 새벽 3시 아이디어 실현',
+    'best': '최고 기록:',
+    'newBest': '신기록!',
+    'again': '하룻밤 더 새울까?'
+  },
   'ads': {
     'watch': '시청', 'revive': '부활', 'secondChance': '두 번째 기회', 'doubleCoins': '2× 코인', 'plusCoins': '+{n} 코인'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': '수집광', 'desc': '총 250개의 아이템 상자를 획득하세요.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': '취소',
   'close': '닫기',
   'ok': '확인',

@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': '首领关卡！',
+    'saiyan': {
+      'verb': '啊啊啊！',
+      'hint': '狂点提升你的力量等级',
+      'pump': '充能！',
+      'over': '超过9000了！'
+    },
+    'cat': {
+      'verb': '摸摸！',
+      'hint': '圆环闭合时点每个火花',
+      'zap': '滋！'
+    },
+    'window': {
+      'verb': '关窗！',
+      'hint': '拖动把手猛地关上',
+      'slam': '砰！'
+    },
+    'flashlight': {
+      'verb': '拍！',
+      'hint': '跟着节奏拍三下',
+      'whack': '啪！'
+    },
+    'toast': {
+      'verb': '接住！',
+      'hint': '在空中接住两片吐司'
+    },
+    'soda': {
+      'verb': '点！',
+      'hint': '点5下，然后拉开拉环',
+      'spray': '噗！'
+    },
+    'router': {
+      'verb': '插上！',
+      'hint': '把插头拖进插座'
+    },
+    'mosquito': {
+      'verb': '拍！',
+      'hint': '圆环收拢的瞬间点击',
+      'smack': '啪！'
+    },
+    'stomp': {
+      'verb': '踩！',
+      'hint': '在时间用完前踩扁每只虫子',
+      'splat': '啪唧！'
+    },
+    'signal': {
+      'verb': '调频！',
+      'hint': '转动天线找到信号',
+      'tune': '搜寻',
+      'hold': '别动！'
+    }
+  },
+  'desk': {
+    'prompt': '按空格进入梦境'
+  },
+  'summary': {
+    'morning': '天亮了！',
+    'lightsOut': '熄灯。',
+    'ideas': '个凌晨三点的点子成真',
+    'best': '最佳：',
+    'newBest': '新纪录！',
+    'again': '再熬一夜？'
+  },
   'ads': {
     'watch': '观看', 'revive': '复活', 'secondChance': '第二次机会', 'doubleCoins': '2× 金币', 'plusCoins': '+{n} 金币'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': '囤积者', 'desc': '累计获取 250 个道具箱。' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': '取消',
   'close': '关闭',
   'ok': '确定',

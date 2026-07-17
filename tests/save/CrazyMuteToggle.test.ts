@@ -24,7 +24,7 @@ beforeEach(() => {
 describe('useCrazyMuteSync.toggleMute', () => {
   it('unmutes a game that booted muted with NO snapshot (the reported CG bug)', async () => {
     // Seed maw_state with a saved 0/0 BEFORE useUser reads its volumes.
-    const { setState } = await import('@/use/useEpicState')
+    const { setState } = await import('@/use/useMidnightState')
     setState(MUSIC_KEY, 0)
     setState(SOUND_KEY, 0)
 
@@ -35,7 +35,7 @@ describe('useCrazyMuteSync.toggleMute', () => {
     toggleMute()
 
     expect(isMuted.value).toBe(false) // the button actually unmutes now
-    const { getState } = await import('@/use/useEpicState')
+    const { getState } = await import('@/use/useMidnightState')
     expect(getState(MUSIC_KEY)).toBe(DEFAULT_MUSIC_VOLUME)
     expect(getState(SOUND_KEY)).toBe(DEFAULT_SOUND_VOLUME)
   })
@@ -55,7 +55,7 @@ describe('useCrazyMuteSync.toggleMute', () => {
     // Booted muted from a cloud-saved 0/0; player unmutes in-game. The CG
     // toolbar must remain able to mute afterwards — the persisted "in-game
     // wins" override used to swallow this event, which broke the sync.
-    const { setState } = await import('@/use/useEpicState')
+    const { setState } = await import('@/use/useMidnightState')
     setState(MUSIC_KEY, 0)
     setState(SOUND_KEY, 0)
 
@@ -70,7 +70,7 @@ describe('useCrazyMuteSync.toggleMute', () => {
   })
 
   it('mute → unmute restores the exact prior volumes via the snapshot', async () => {
-    const { setState, getState } = await import('@/use/useEpicState')
+    const { setState, getState } = await import('@/use/useMidnightState')
     setState(MUSIC_KEY, 0.4)
     setState(SOUND_KEY, 0.5)
 

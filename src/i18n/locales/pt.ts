@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Fase de chefe!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Martele para subir seu nível de poder',
+      'pump': 'Bomba!',
+      'over': 'Passou de 9000!'
+    },
+    'cat': {
+      'verb': 'Faz carinho!',
+      'hint': 'Toque cada faísca quando o anel fechar',
+      'zap': 'Zap!'
+    },
+    'window': {
+      'verb': 'Fecha!',
+      'hint': 'Arraste a alça e feche com força',
+      'slam': 'Bam!'
+    },
+    'flashlight': {
+      'verb': 'Bate!',
+      'hint': 'Bata nela três vezes no ritmo',
+      'whack': 'Pá!'
+    },
+    'toast': {
+      'verb': 'Pega!',
+      'hint': 'Pegue as duas fatias no ar'
+    },
+    'soda': {
+      'verb': 'Toca!',
+      'hint': 'Toque 5 vezes e abra a lata',
+      'spray': 'Splat!'
+    },
+    'router': {
+      'verb': 'Conecta!',
+      'hint': 'Arraste o plugue até a tomada'
+    },
+    'mosquito': {
+      'verb': 'Esmaga!',
+      'hint': 'Toque quando o anel fechar',
+      'smack': 'Pá!'
+    },
+    'stomp': {
+      'verb': 'Pisa!',
+      'hint': 'Esmague cada inseto antes do tempo acabar',
+      'splat': 'Esmaga!'
+    },
+    'signal': {
+      'verb': 'Sintoniza!',
+      'hint': 'Gire a antena para achar o sinal',
+      'tune': 'Buscar',
+      'hold': 'Segura!'
+    }
+  },
+  'desk': {
+    'prompt': 'Espaço para sonhar'
+  },
+  'summary': {
+    'morning': 'Amanheceu!',
+    'lightsOut': 'Luzes apagadas.',
+    'ideas': 'ideias das 3 da manhã realizadas',
+    'best': 'Recorde:',
+    'newBest': 'Novo recorde!',
+    'again': 'Virar mais uma noite?'
+  },
   'ads': {
     'watch': 'Assistir', 'revive': 'Reviver', 'secondChance': 'Segunda chance', 'doubleCoins': '2× moedas', 'plusCoins': '+{n} moedas'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Acumulador', 'desc': 'Pegue 250 caixas de itens no total.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Cancelar',
   'close': 'Fechar',
   'ok': 'Ok',

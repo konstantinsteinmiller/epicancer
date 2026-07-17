@@ -23,21 +23,24 @@ import { loadAudioBuffer } from '@/use/useAssets'
 // allSettled covers them all. Order doesn't matter — they decode in
 // parallel and fight for the AudioContext's decoder pool. Adding a new
 // SFX = add the basename here (no `.ogg`, no path prefix).
+// Midnight Analog's percussive, material layer (the CLACK, the SMACK, the pen
+// clicks, the mosquito whine, the TV static) is SYNTHESISED at runtime in
+// `use/ink/useInkAudio.ts` — nothing to decode for those. What stays sampled is
+// the handful of sounds with a texture worth more than a synth can fake: the
+// page rips, the stamp chimes, and the loss sting.
 const GAMEPLAY_SFX: ReadonlyArray<string> = [
-  'anchor-swap',
-  'obstacle-hit',
-  'coin-pickup',
+  // Page rip / crumple — fired on a failed micro-game and the boss's
+  // page-tearing lightning. Two variants so consecutive rips don't machine-gun.
   'plastic-torn-1',
   'plastic-torn-2',
-  'gravity',
-  'dodge',
-  'shrapnel',
-  'lose',
+  // Judgment stamps.
   'win',
-  'modal-open',
+  'lose',
+  // Escalation sting every 4th game + the boss banner slam.
   'level-up',
-  'reward-continue',
-  'happy'
+  // Morning payoff.
+  'happy',
+  'celebration-1'
 ]
 
 let preloadStarted = false

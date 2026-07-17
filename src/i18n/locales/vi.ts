@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Màn trùm!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Bấm liên tục để tăng sức mạnh',
+      'pump': 'Bơm!',
+      'over': 'Hơn 9000 rồi!'
+    },
+    'cat': {
+      'verb': 'Vuốt ve!',
+      'hint': 'Chạm mỗi tia lửa khi vòng khép lại',
+      'zap': 'Xẹt!'
+    },
+    'window': {
+      'verb': 'Đóng!',
+      'hint': 'Kéo tay nắm và đóng sầm lại',
+      'slam': 'Rầm!'
+    },
+    'flashlight': {
+      'verb': 'Đập!',
+      'hint': 'Đập ba lần theo nhịp',
+      'whack': 'Bốp!'
+    },
+    'toast': {
+      'verb': 'Bắt!',
+      'hint': 'Bắt cả hai lát bánh giữa không trung'
+    },
+    'soda': {
+      'verb': 'Gõ!',
+      'hint': 'Gõ 5 lần rồi bật nắp',
+      'spray': 'Bắn!'
+    },
+    'router': {
+      'verb': 'Cắm vào!',
+      'hint': 'Kéo phích cắm vào ổ điện'
+    },
+    'mosquito': {
+      'verb': 'Đập!',
+      'hint': 'Chạm đúng lúc vòng khép lại',
+      'smack': 'Bốp!'
+    },
+    'stomp': {
+      'verb': 'Giẫm!',
+      'hint': 'Đè bẹp mọi con bọ trước khi hết giờ',
+      'splat': 'Bẹp!'
+    },
+    'signal': {
+      'verb': 'Dò sóng!',
+      'hint': 'Xoay ăng-ten để tìm sóng',
+      'tune': 'Dò',
+      'hold': 'Giữ!'
+    }
+  },
+  'desk': {
+    'prompt': 'Nhấn cách để mơ'
+  },
+  'summary': {
+    'morning': 'Trời sáng!',
+    'lightsOut': 'Tắt đèn.',
+    'ideas': 'ý tưởng lúc 3 giờ sáng thành hiện thực',
+    'best': 'Kỷ lục:',
+    'newBest': 'Kỷ lục mới!',
+    'again': 'Thức thêm đêm nữa?'
+  },
   'ads': {
     'watch': 'Xem', 'revive': 'Hồi sinh', 'secondChance': 'Cơ hội thứ hai', 'doubleCoins': '2× xu', 'plusCoins': '+{n} xu'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Kẻ tích trữ', 'desc': 'Lấy tổng cộng 250 hộp vật phẩm.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Hủy',
   'close': 'Đóng',
   'ok': 'Đồng ý',

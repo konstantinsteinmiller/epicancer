@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Tahap bos!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Gebuk untuk menaikkan level kekuatan',
+      'pump': 'Pompa!',
+      'over': 'Lebih dari 9000!'
+    },
+    'cat': {
+      'verb': 'Elus!',
+      'hint': 'Ketuk tiap percikan saat cincinnya menutup',
+      'zap': 'Zap!'
+    },
+    'window': {
+      'verb': 'Tutup!',
+      'hint': 'Seret gagang dan banting menutup',
+      'slam': 'Bam!'
+    },
+    'flashlight': {
+      'verb': 'Pukul!',
+      'hint': 'Pukul tiga kali berirama',
+      'whack': 'Plak!'
+    },
+    'toast': {
+      'verb': 'Tangkap!',
+      'hint': 'Tangkap kedua roti di udara'
+    },
+    'soda': {
+      'verb': 'Ketuk!',
+      'hint': 'Ketuk 5 kali, lalu buka tabnya',
+      'spray': 'Ciprat!'
+    },
+    'router': {
+      'verb': 'Colokkan!',
+      'hint': 'Seret steker ke stopkontak'
+    },
+    'mosquito': {
+      'verb': 'Tepuk!',
+      'hint': 'Ketuk tepat saat lingkaran menutup',
+      'smack': 'Plak!'
+    },
+    'stomp': {
+      'verb': 'Injak!',
+      'hint': 'Pencet semua serangga sebelum waktu habis',
+      'splat': 'Ceplak!'
+    },
+    'signal': {
+      'verb': 'Setel!',
+      'hint': 'Putar antena untuk cari sinyal',
+      'tune': 'Cari',
+      'hold': 'Tahan!'
+    }
+  },
+  'desk': {
+    'prompt': 'Tekan spasi untuk bermimpi'
+  },
+  'summary': {
+    'morning': 'Pagi!',
+    'lightsOut': 'Lampu padam.',
+    'ideas': 'ide jam 3 pagi jadi nyata',
+    'best': 'Terbaik:',
+    'newBest': 'Rekor baru!',
+    'again': 'Begadang semalam lagi?'
+  },
   'ads': {
     'watch': 'Tonton', 'revive': 'Hidupkan', 'secondChance': 'Kesempatan Kedua', 'doubleCoins': '2× koin', 'plusCoins': '+{n} koin'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Penimbun', 'desc': 'Ambil total 250 kotak item.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Batal',
   'close': 'Tutup',
   'ok': 'Ok',

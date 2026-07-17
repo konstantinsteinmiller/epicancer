@@ -43,7 +43,7 @@ export const forceStopMusic = (): void => {
 /**
  * Set the background-music playback rate directly. The game tick computes a
  * stage-aware rate from the ball's current speed (slow at stage start / under
- * slow-mo, faster as the run heats up — see useEpicGame.step) and feeds it here
+ * faster as the night escalates — see useMidnightGame.resolve) and feeds it here
  * each frame. Clamped to a sane band so a bad value can never warp the audio.
  * Idempotent, null-safe, and a no-op before the music element exists, so it must
  * never throw or allocate.

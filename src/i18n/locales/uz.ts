@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Boss bosqichi!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Quvvat darajasini oshirish uchun bosing',
+      'pump': 'Nasos!',
+      'over': '9000 dan oshdi!'
+    },
+    'cat': {
+      'verb': 'Silang!',
+      'hint': 'Halqa yopilganda har uchqunni bosing',
+      'zap': 'Chirs!'
+    },
+    'window': {
+      'verb': 'Yop!',
+      'hint': 'Dastakni torting va qarsillatib yoping',
+      'slam': 'Tars!'
+    },
+    'flashlight': {
+      'verb': 'Ur!',
+      'hint': 'Uni ohangda uch marta uring',
+      'whack': 'Shap!'
+    },
+    'toast': {
+      'verb': 'Ushla!',
+      'hint': 'Ikkala bo‘lakni havoda ushlang'
+    },
+    'soda': {
+      'verb': 'Bos!',
+      'hint': '5 marta bosing, keyin qopqoqni oching',
+      'spray': 'Sachra!'
+    },
+    'router': {
+      'verb': 'Ulang!',
+      'hint': 'Vilkani rozetkaga torting'
+    },
+    'mosquito': {
+      'verb': 'Ur!',
+      'hint': 'Halqa yopilganda bosing',
+      'smack': 'Shap!'
+    },
+    'stomp': {
+      'verb': 'Bosib ez!',
+      'hint': 'Vaqt tugamasdan har bir hasharotni ezing',
+      'splat': 'Shap!'
+    },
+    'signal': {
+      'verb': 'Sozlang!',
+      'hint': 'Signalni topguncha antennani buring',
+      'tune': 'Qidir',
+      'hold': 'Ushlab turing!'
+    }
+  },
+  'desk': {
+    'prompt': 'Tush ko‘rish uchun bo‘sh joy'
+  },
+  'summary': {
+    'morning': 'Tong!',
+    'lightsOut': 'Chiroq o‘chdi.',
+    'ideas': 'tunggi 3 dagi g‘oyalar hayotga kirdi',
+    'best': 'Rekord:',
+    'newBest': 'Yangi rekord!',
+    'again': 'Yana bir tun?'
+  },
   'ads': {
     'watch': 'Koʻrish', 'revive': 'Tiriltirish', 'secondChance': 'Ikkinchi imkon', 'doubleCoins': '2× tanga', 'plusCoins': '+{n} tanga'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Yig\'uvchi', 'desc': 'Jami 250 ta buyum qutisini oling.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Bekor qilish',
   'close': 'Yopish',
   'ok': 'Ok',

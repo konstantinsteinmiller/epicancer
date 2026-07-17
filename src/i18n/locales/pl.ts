@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Etap bossa!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Wal, by podnieść poziom mocy',
+      'pump': 'Pompuj!',
+      'over': 'Ponad 9000!'
+    },
+    'cat': {
+      'verb': 'Pogłaszcz!',
+      'hint': 'Stuknij każdą iskrę, gdy pierścień się zamknie',
+      'zap': 'Bzik!'
+    },
+    'window': {
+      'verb': 'Zamknij!',
+      'hint': 'Przeciągnij uchwyt i zatrzaśnij',
+      'slam': 'Trzask!'
+    },
+    'flashlight': {
+      'verb': 'Walnij!',
+      'hint': 'Walnij trzy razy do rytmu',
+      'whack': 'Łup!'
+    },
+    'toast': {
+      'verb': 'Łap!',
+      'hint': 'Złap obie kromki w locie'
+    },
+    'soda': {
+      'verb': 'Stukaj!',
+      'hint': 'Stuknij 5 razy, potem otwórz wieczko',
+      'spray': 'Chlast!'
+    },
+    'router': {
+      'verb': 'Podłącz!',
+      'hint': 'Przeciągnij wtyczkę do gniazdka'
+    },
+    'mosquito': {
+      'verb': 'Klepnij!',
+      'hint': 'Kliknij, gdy pierścień się zamknie',
+      'smack': 'Plask!'
+    },
+    'stomp': {
+      'verb': 'Rozdepcz!',
+      'hint': 'Zgnieć każdego robaka, zanim czas minie',
+      'splat': 'Chlast!'
+    },
+    'signal': {
+      'verb': 'Nastrój!',
+      'hint': 'Obracaj antenę, aż złapiesz sygnał',
+      'tune': 'Szukaj',
+      'hold': 'Trzymaj!'
+    }
+  },
+  'desk': {
+    'prompt': 'Spacja, by śnić'
+  },
+  'summary': {
+    'morning': 'Poranek!',
+    'lightsOut': 'Gasimy światło.',
+    'ideas': 'pomysłów z 3 nad ranem ożywionych',
+    'best': 'Rekord:',
+    'newBest': 'Nowy rekord!',
+    'again': 'Jeszcze jedna nocka?'
+  },
   'ads': {
     'watch': 'Obejrzyj', 'revive': 'Wskrześ', 'secondChance': 'Druga szansa', 'doubleCoins': '2× monety', 'plusCoins': '+{n} monet'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Zbieracz', 'desc': 'Złap łącznie 250 skrzyń z przedmiotami.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Anuluj',
   'close': 'Zamknij',
   'ok': 'Ok',

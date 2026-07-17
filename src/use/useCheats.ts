@@ -1,9 +1,5 @@
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
-import useEpicConfig from '@/use/useEpicConfig'
-import useEpicGame from '@/use/useEpicGame'
-import { setState } from '@/use/useEpicState'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { toggleDebug } from '@/use/useMatch'
-import { STAGE_KEY } from '@/keys'
 
 // `cheat` stays a top-level localStorage flag — it's an explicit dev toggle
 // that gates the whole keyboard-shortcut module, so we don't want it living
@@ -57,59 +53,59 @@ export const installDebugUnlock = (): void => {
 // this bare side-effect can be tree-shaken — still attach the listener at boot.
 installDebugUnlock()
 
+// ─── Debug hook registry ───────────────────────────────────────────────────
+//
+// The cheat shortcuts drive the running game (force a win, jump to the boss,
+// refill hearts), but this module is imported by App.vue at boot while the
+// game scene is lazy. Importing `useMidnightGame` here would both pull the
+// gameplay chunk into the entry bundle and create a cycle (the scene imports
+// the cheats). So the scene REGISTERS its handlers on mount instead, and the
+// shortcuts no-op harmlessly whenever no scene is mounted.
+
+export interface CheatHooks {
+  /** Force the running micro-game to resolve as a win. */
+  winRound: () => void
+  /** Force the running micro-game to resolve as a loss. */
+  loseRound: () => void
+  /** End the current micro-game and queue the boss as the next page. */
+  jumpToBoss: () => void
+  /** Refill the heart track to full. */
+  refillHearts: () => void
+  /** Skip the desk intro straight into the notebook. */
+  skipIntro: () => void
+  /** Jump to the morning payoff / summary page. */
+  jumpToMorning: () => void
+}
+
+let hooks: Partial<CheatHooks> = {}
+
+/** Called by the game scene on mount. Returns an unregister function for
+ *  unmount so a stale scene's closures can't be driven after teardown. */
+export const registerCheatHooks = (next: Partial<CheatHooks>): (() => void) => {
+  hooks = next
+  return () => { hooks = {} }
+}
+
+const run = (name: keyof CheatHooks, label: string) => () => {
+  const fn = hooks[name]
+  if (!fn) {
+    console.warn(`[CHEAT] ${label} — no game scene mounted.`)
+    return
+  }
+  fn()
+  console.warn(`[CHEAT] ${label}`)
+}
+
 const useCheats = () => {
   if (!isCheat.value) return {}
 
-  const { addCoins } = useEpicConfig()
-  const { spawnTestItemBoxes, spawnTestCratePile, resetForStage } = useEpicGame()
-
-  // Epicrolla has open-ended stages (tilesToClear scales with stage), so just
-  // write the stage into the save blob. `useEpicProgress` watches the blob and
-  // refreshes its `stage` ref — but that refresh is a reactive effect that flushes
-  // on the next tick, so we `nextTick` before `resetForStage()` (which reads
-  // `progress.stage`). That regenerates the field at the new stage IMMEDIATELY
-  // (the old behaviour only applied on the next run, so the cheat looked dead).
-  const setStage = (stageId: number) => {
-    if (stageId < 1) {
-      console.warn(`[CHEAT] Invalid stage ${stageId}. Must be >= 1.`)
-      return
-    }
-    setState(STAGE_KEY, stageId)
-    void nextTick(() => {
-      resetForStage()
-      console.warn(`[CHEAT] Stage set to ${stageId} (applied now).`)
-    })
-  }
-
   const cheatsMap: Record<string, () => void> = {
-    'ctrl+shift+1': () => setStage(1),
-    'ctrl+shift+2': () => setStage(2),
-    'ctrl+shift+3': () => setStage(3),
-    'ctrl+shift+4': () => setStage(4),
-    'ctrl+shift+5': () => setStage(5),
-    'ctrl+shift+6': () => setStage(6),
-    'ctrl+shift+7': () => setStage(7),
-    'ctrl+shift+8': () => setStage(8),
-    'ctrl+shift+9': () => setStage(9),
-    'ctrl+shift+alt+0': () => setStage(10),
-    'ctrl+shift+alt+1': () => setStage(11),
-    'ctrl+shift+alt+2': () => setStage(12),
-    'ctrl+shift+alt+3': () => setStage(13),
-    'ctrl+shift+alt+4': () => setStage(14),
-    'ctrl+shift+alt+k': () => addCoins(3000),
-    // Jump to the stage-10 difficulty test level (the old, dense "stage 1").
-    'ctrl+shift+alt+t': () => setStage(10),
-    // Spawn a normal item box 1 tile ahead + a GOLDEN box 4 tiles ahead on the
-    // ball's path — for testing the Racer dash (golden = 40-tile dash).
-    'ctrl+shift+alt+i': () => {
-      spawnTestItemBoxes()
-      console.warn('[CHEAT] Spawned 1 item box + 1 golden box ahead.')
-    },
-    // Spawn a 2×2 crate-pile a few tiles ahead — to eyeball the new cluster.
-    'ctrl+shift+alt+c': () => {
-      spawnTestCratePile()
-      console.warn('[CHEAT] Spawned a 2×2 crate-pile ahead.')
-    }
+    'ctrl+shift+1': run('winRound', 'Forced round WIN.'),
+    'ctrl+shift+2': run('loseRound', 'Forced round LOSS.'),
+    'ctrl+shift+3': run('refillHearts', 'Hearts refilled.'),
+    'ctrl+shift+alt+b': run('jumpToBoss', 'Boss queued as next page.'),
+    'ctrl+shift+alt+s': run('skipIntro', 'Skipped the desk intro.'),
+    'ctrl+shift+alt+m': run('jumpToMorning', 'Jumped to the morning payoff.')
   }
 
   const heldKeys = new Set<string>()

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { GlitchStrategy, type ConflictResolver } from '@/utils/save/GlitchStrategy'
 import { SaveManager } from '@/utils/save/SaveManager'
+import { SAVE_KEYS } from '@/utils/save/SaveMergePolicy'
 
 // ─── test helpers ──────────────────────────────────────────────────────────
 
@@ -297,7 +298,10 @@ describe('GlitchStrategy (isGlitch guard)', () => {
     // sanity guard doesn't engage (it only retries when local looks like
     // fresh defaults — see SaveManager.shouldRunSanityGuard). The point
     // of THIS test is the local-mirror fallback, not the retry behaviour.
-    window.localStorage.setItem('spinner_campaign_stage', '5')
+    // The guard judges freshness on the real progression keys, so it has to
+    // be one of those — a settings key wouldn't count as progress and the
+    // guard would burn its 3×1s retry ladder and time this test out.
+    window.localStorage.setItem(SAVE_KEYS.BEST_SCORE, '5')
     const fetchImpl = vi.fn(async () => new Response('boom', { status: 500 }))
     const strategy = makeStrategy({ fetchImpl })
     const manager = new SaveManager(strategy)

@@ -345,10 +345,9 @@ export class CrazyGamesStrategy implements SaveStrategy {
     }, delay)
   }
 
-  private setState(state: HydrateState, reason: string, bonusCoinsAwarded = 0): void {
+  private setState(state: HydrateState, reason: string): void {
     this._hydrateState = state
     const notice: HydrateNotice = { state, reason }
-    if (bonusCoinsAwarded > 0) notice.bonusCoinsAwarded = bonusCoinsAwarded
     for (const fn of this.noticeListeners) {
       try {
         fn(notice)

@@ -9,11 +9,10 @@ import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 import type { SaveManager } from '@/utils/save/SaveManager'
 import type { HydrateNotice, HydrateState } from '@/utils/save/types'
-import { reloadEpicState, flushPersist } from '@/use/useEpicState'
+import { reloadMidnightState, flushPersist } from '@/use/useMidnightState'
 
 const hydrateState: Ref<HydrateState> = ref('pending')
 const lastNotice: Ref<HydrateNotice | null> = ref(null)
-const bonusCoinsAwarded: Ref<number> = ref(0)
 const retryInFlight: Ref<boolean> = ref(false)
 /**
  * Increments every time a hydrate transitions to `success-with-data`.
@@ -41,7 +40,7 @@ let manager: SaveManager | null = null
  * makes that workaround unnecessary by fixing the root cause for every key.)
  */
 const bumpSaveDataVersion = (): void => {
-  reloadEpicState()
+  reloadMidnightState()
   saveDataVersion.value++
 }
 
@@ -75,9 +74,6 @@ export const installSaveStatus = (m: SaveManager): void => {
   m.onHydrateNotice((notice) => {
     lastNotice.value = notice
     hydrateState.value = notice.state
-    if (notice.bonusCoinsAwarded && notice.bonusCoinsAwarded > 0) {
-      bonusCoinsAwarded.value = notice.bonusCoinsAwarded
-    }
     // Bump only AFTER initial boot completes. Notices arriving during
     // `init()` fire from inside the strategy's `hydrate()` — patches
     // aren't installed yet, so any composable watcher that re-reads
@@ -108,10 +104,6 @@ export const retrySync = async (): Promise<void> => {
   }
 }
 
-export const acknowledgeBonus = (): void => {
-  bonusCoinsAwarded.value = 0
-}
-
 /** True while we don't yet know the state of the cloud save — UI may
  *  want to render a small "syncing" spinner. */
 export const isSyncPending = computed(() => hydrateState.value === 'pending')
@@ -122,14 +114,9 @@ export const isOfflineMode = computed(() =>
   hydrateState.value === 'failed-retrying' || hydrateState.value === 'failed-final'
 )
 
-/** True after a successful merge that surpassed local — used to show
- *  the "+N coins for your old account" thank-you. */
-export const hasBonusToShow = computed(() => bonusCoinsAwarded.value > 0)
-
 export {
   hydrateState,
   lastNotice,
-  bonusCoinsAwarded,
   retryInFlight,
   saveDataVersion
 }

@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'ボスステージ！',
+    'saiyan': {
+      'verb': 'アアアーッ！',
+      'hint': '連打してパワーレベルを上げろ',
+      'pump': 'ポンプ！',
+      'over': '9000以上だ！'
+    },
+    'cat': {
+      'verb': 'なでろ！',
+      'hint': '輪が閉じた瞬間に火花をタップ',
+      'zap': 'バチッ！'
+    },
+    'window': {
+      'verb': '閉めろ！',
+      'hint': '取っ手を引いて一気に閉める',
+      'slam': 'バン！'
+    },
+    'flashlight': {
+      'verb': 'たたけ！',
+      'hint': 'リズムよく3回たたく',
+      'whack': 'バシッ！'
+    },
+    'toast': {
+      'verb': 'キャッチ！',
+      'hint': '空中で2枚とも受け止めろ'
+    },
+    'soda': {
+      'verb': 'タップ！',
+      'hint': '5回タップしてタブを開ける',
+      'spray': 'ブシャ！'
+    },
+    'router': {
+      'verb': 'つなげ！',
+      'hint': 'プラグをコンセントへドラッグ'
+    },
+    'mosquito': {
+      'verb': 'たたけ！',
+      'hint': '輪が閉じた瞬間にタップ',
+      'smack': 'パシッ！'
+    },
+    'stomp': {
+      'verb': '踏みつぶせ！',
+      'hint': '時間切れ前に虫を全部踏みつぶせ',
+      'splat': 'グシャ！'
+    },
+    'signal': {
+      'verb': 'あわせろ！',
+      'hint': 'アンテナを回して電波を探せ',
+      'tune': '探索',
+      'hold': 'キープ！'
+    }
+  },
+  'desk': {
+    'prompt': 'スペースで夢へ'
+  },
+  'summary': {
+    'morning': '朝だ！',
+    'lightsOut': 'おやすみ。',
+    'ideas': '個の午前3時のアイデアが形に',
+    'best': '最高記録：',
+    'newBest': '新記録！',
+    'again': 'もう一晩ねばる？'
+  },
   'ads': {
     'watch': '見る', 'revive': '復活', 'secondChance': 'セカンドチャンス', 'doubleCoins': '2× コイン', 'plusCoins': '+{n} コイン'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': '収集家', 'desc': '合計250個のアイテムボックスを取る。' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'キャンセル',
   'close': '閉じる',
   'ok': 'OK',

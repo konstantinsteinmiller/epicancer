@@ -3,7 +3,76 @@
 // this folder mirror the shape. Vite ships each non-English locale as its own
 // lazy chunk (see `src/i18n/index.ts`).
 export default {
-  'gameName': 'Epicrolla',
+  // ── Midnight Analog ──────────────────────────────────────────────────────
+  // The briefing verbs are the INSTRUCTION, not flavour: the player gets ~1.5s
+  // and one word. Translations must stay short, imperative and unambiguous —
+  // a long verb gets auto-shrunk to fit and loses its punch.
+  'game': {
+    'bossBanner': 'Boss Stage!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Mash to raise your power level',
+      'pump': 'Pump!',
+      'over': "It's over 9000!"
+    },
+    'cat': {
+      'verb': 'Pet!',
+      'hint': 'Tap each spark as its ring closes',
+      'zap': 'Zap!'
+    },
+    'window': {
+      'verb': 'Shut!',
+      'hint': 'Drag the handle across to slam it',
+      'slam': 'Slam!'
+    },
+    'flashlight': {
+      'verb': 'Smack!',
+      'hint': 'Smack it three times in rhythm',
+      'whack': 'Whack!'
+    },
+    'toast': {
+      'verb': 'Catch!',
+      'hint': 'Catch both slices in the air'
+    },
+    'soda': {
+      'verb': 'Tap!',
+      'hint': 'Tap 5 times, then pop the tab',
+      'spray': 'Splat!'
+    },
+    'router': {
+      'verb': 'Connect!',
+      'hint': 'Drag the plug into the socket'
+    },
+    'mosquito': {
+      'verb': 'Swat!',
+      'hint': 'Tap each one as the ring closes',
+      'smack': 'Smack!'
+    },
+    'stomp': {
+      'verb': 'Stomp!',
+      'hint': 'Squash every bug before time runs out',
+      'splat': 'Splat!'
+    },
+    'signal': {
+      'verb': 'Tune it!',
+      'hint': 'Circle the antenna to find the signal',
+      'tune': 'Tune',
+      'hold': 'Hold!'
+    }
+  },
+  'gameName': 'Midnight Analog',
+  // The framing story: the desk at 3AM, and the morning after.
+  'desk': {
+    'prompt': 'Press space to dream'
+  },
+  'summary': {
+    'morning': 'Morning!',
+    'lightsOut': 'Lights out.',
+    'ideas': '3am ideas brought to life',
+    'best': 'Best:',
+    'newBest': 'New best!',
+    'again': 'Stay up another night?'
+  },
   'cancel': 'Cancel',
   'close': 'Close',
   'ok': 'Ok',

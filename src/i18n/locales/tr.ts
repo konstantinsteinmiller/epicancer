@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': 'Patron bölümü!',
+    'saiyan': {
+      'verb': 'Aaaahrg!',
+      'hint': 'Güç seviyeni yükseltmek için tıkla',
+      'pump': 'Pompala!',
+      'over': '9000’i geçti!'
+    },
+    'cat': {
+      'verb': 'Sev!',
+      'hint': 'Halka kapanınca her kıvılcıma dokun',
+      'zap': 'Zınk!'
+    },
+    'window': {
+      'verb': 'Kapat!',
+      'hint': 'Kolu çek ve hızla kapat',
+      'slam': 'Küt!'
+    },
+    'flashlight': {
+      'verb': 'Vur!',
+      'hint': 'Ritimle üç kez vur',
+      'whack': 'Şak!'
+    },
+    'toast': {
+      'verb': 'Yakala!',
+      'hint': 'İki dilimi de havada yakala'
+    },
+    'soda': {
+      'verb': 'Tıkla!',
+      'hint': '5 kez tıkla, sonra kapağı aç',
+      'spray': 'Şıp!'
+    },
+    'router': {
+      'verb': 'Tak!',
+      'hint': 'Fişi prize sürükle'
+    },
+    'mosquito': {
+      'verb': 'Ez!',
+      'hint': 'Halka kapanınca tam zamanında dokun',
+      'smack': 'Şak!'
+    },
+    'stomp': {
+      'verb': 'Ez!',
+      'hint': 'Süre bitmeden her böceği ez',
+      'splat': 'Sap!'
+    },
+    'signal': {
+      'verb': 'Ayarla!',
+      'hint': 'Sinyali bulana dek anteni çevir',
+      'tune': 'Ara',
+      'hold': 'Tut!'
+    }
+  },
+  'desk': {
+    'prompt': 'Rüya için boşluk tuşu'
+  },
+  'summary': {
+    'morning': 'Sabah!',
+    'lightsOut': 'Işıklar söndü.',
+    'ideas': 'gece 3 fikri hayata geçti',
+    'best': 'Rekor:',
+    'newBest': 'Yeni rekor!',
+    'again': 'Bir gece daha?'
+  },
   'ads': {
     'watch': 'İzle', 'revive': 'Canlandır', 'secondChance': 'İkinci Şans', 'doubleCoins': '2× Para', 'plusCoins': '+{n} para'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'İstifçi', 'desc': 'Toplam 250 eşya kutusu yakala.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'İptal',
   'close': 'Kapat',
   'ok': 'Tamam',

@@ -1,4 +1,68 @@
 export default {
+  'game': {
+    'bossBanner': '¡Fase final!',
+    'saiyan': {
+      'verb': '¡Aaaahrg!',
+      'hint': 'Machaca para subir tu nivel de poder',
+      'pump': '¡Bombea!',
+      'over': '¡Supera los 9000!'
+    },
+    'cat': {
+      'verb': '¡Acaricia!',
+      'hint': 'Toca cada chispa cuando su anillo se cierre',
+      'zap': '¡Zas!'
+    },
+    'window': {
+      'verb': '¡Cierra!',
+      'hint': 'Arrastra el tirador y ciérrala de golpe',
+      'slam': '¡Zas!'
+    },
+    'flashlight': {
+      'verb': '¡Golpea!',
+      'hint': 'Golpéala tres veces al ritmo',
+      'whack': '¡Paf!'
+    },
+    'toast': {
+      'verb': '¡Atrapa!',
+      'hint': 'Atrapa las dos rebanadas en el aire'
+    },
+    'soda': {
+      'verb': '¡Toca!',
+      'hint': 'Toca 5 veces y abre la anilla',
+      'spray': '¡Plas!'
+    },
+    'router': {
+      'verb': '¡Conecta!',
+      'hint': 'Arrastra el enchufe a la toma'
+    },
+    'mosquito': {
+      'verb': '¡Aplasta!',
+      'hint': 'Toca justo cuando el anillo se cierre',
+      'smack': '¡Zas!'
+    },
+    'stomp': {
+      'verb': 'Pisa!',
+      'hint': 'Aplasta cada bicho antes de que acabe el tiempo',
+      'splat': 'Plas!'
+    },
+    'signal': {
+      'verb': '¡Sintoniza!',
+      'hint': 'Gira la antena hasta hallar la señal',
+      'tune': 'Busca',
+      'hold': '¡Aguanta!'
+    }
+  },
+  'desk': {
+    'prompt': 'Pulsa espacio para soñar'
+  },
+  'summary': {
+    'morning': '¡Amanece!',
+    'lightsOut': 'Luces fuera.',
+    'ideas': 'ideas de las 3 a.m. hechas realidad',
+    'best': 'Récord:',
+    'newBest': '¡Nuevo récord!',
+    'again': '¿Otra noche en vela?'
+  },
   'ads': {
     'watch': 'Ver', 'revive': 'Revivir', 'secondChance': 'Segunda oportunidad', 'doubleCoins': '2× monedas', 'plusCoins': '+{n} monedas'
   },
@@ -22,7 +86,7 @@ export default {
       'items250': { 'name': 'Acaparador', 'desc': 'Consigue 250 cajas de objetos en total.' }
     }
   },
-  'gameName': 'Epicrolla',
+  'gameName': 'Midnight Analog',
   'cancel': 'Cancelar',
   'close': 'Cerrar',
   'ok': 'Ok',
