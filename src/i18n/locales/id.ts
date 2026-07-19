@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Ketuk!',
-      'hint': 'Ketuk 5 kali, lalu buka tabnya',
+      'hint': 'Ketuk 3 kali, lalu buka tabnya',
       'spray': 'Ciprat!'
     },
     'router': {

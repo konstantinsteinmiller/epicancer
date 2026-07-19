@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Tape !',
-      'hint': 'Tape 5 fois, puis ouvre la languette',
+      'hint': 'Tape 3 fois, puis ouvre la languette',
       'spray': 'Splash !'
     },
     'router': {

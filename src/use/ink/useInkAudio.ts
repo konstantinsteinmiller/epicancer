@@ -57,8 +57,23 @@ const vol = (ratio: number): number => {
   return Math.max(0, Math.min(1, (userSoundVolume.value ?? 0.7) * ratio))
 }
 
-/** True when no voice should start. */
-const silent = (): boolean => isAudioSuspended() || isMobileAudioMuted.value
+/** True when no voice should start. Includes the DESKTOP mute (volume driven to
+ *  0 by the FMuteButton): without this, a muted voice would still be built and
+ *  its `exponentialRampToValueAtTime(vol(...))` would target 0 — which the Web
+ *  Audio spec REJECTS with a RangeError. That throw propagates out of the
+ *  micro-game's `update`, so a win/loss on the same frame (e.g. soda's `pssh` on
+ *  the tab-open) never resolves and the game hangs. Treating volume 0 as silent
+ *  makes every one-shot early-return, so no ramp is ever scheduled. */
+const silent = (): boolean => {
+  if (isAudioSuspended() || isMobileAudioMuted.value) return true
+  const { userSoundVolume } = useUser()
+  return (userSoundVolume.value ?? 0.7) <= 0
+}
+
+/** `exponentialRampToValueAtTime` throws for a target of 0 (or a subnormal).
+ *  Floor any player-volume-scaled target so a very low (but non-zero) volume can
+ *  never trip the same RangeError that a muted volume would. */
+const expTarget = (v: number): number => Math.max(0.0002, v)
 
 // ── Primitives ────────────────────────────────────────────────────────────
 
@@ -455,7 +470,7 @@ export const sizzle = (): void => {
   bp.Q.value = 0.8
   const g = ctx.createGain()
   g.gain.setValueAtTime(0.0001, t0)
-  g.gain.exponentialRampToValueAtTime(vol(0.4), t0 + 0.05)
+  g.gain.exponentialRampToValueAtTime(expTarget(vol(0.4)), t0 + 0.05)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.55)
   src.connect(bp).connect(g).connect(out)
   src.start(t0)
@@ -502,7 +517,7 @@ export const alarm = (): void => {
     osc.frequency.setValueAtTime(i % 2 === 0 ? hi : lo, t0 + i * 0.08)
   }
   g.gain.setValueAtTime(0.0001, t0)
-  g.gain.exponentialRampToValueAtTime(vol(0.28), t0 + 0.02)
+  g.gain.exponentialRampToValueAtTime(expTarget(vol(0.28)), t0 + 0.02)
   g.gain.setValueAtTime(vol(0.28), t0 + 0.58)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.68)
   osc.start(t0)
@@ -851,7 +866,7 @@ export const pssh = (violent = false): void => {
   hp.frequency.exponentialRampToValueAtTime(violent ? 300 : 1400, t0 + dur)
   const g = ctx.createGain()
   g.gain.setValueAtTime(0.0001, t0 + 0.02)
-  g.gain.exponentialRampToValueAtTime(vol(violent ? 0.75 : 0.34), t0 + 0.06)
+  g.gain.exponentialRampToValueAtTime(expTarget(vol(violent ? 0.75 : 0.34)), t0 + 0.06)
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur)
   src.connect(hp).connect(g).connect(out)
   src.start(t0 + 0.02)

@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': '点！',
-      'hint': '点5下，然后拉开拉环',
+      'hint': '点3下，然后拉开拉环',
       'spray': '噗！'
     },
     'router': {

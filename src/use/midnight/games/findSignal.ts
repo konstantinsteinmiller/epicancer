@@ -132,6 +132,21 @@ class FindSignal implements MicroGame {
     return undefined
   }
 
+  /** Dev-only view (GameScene's `__midnight.state().detail`). The boss is aimed
+   *  rather than tapped, so its state is invisible in a screenshot: `signal` is
+   *  the gradient the player hears as static, and `charge` is the hold. Exposing
+   *  the hotspot lets an automated session verify the lock actually completes. */
+  debug() {
+    return {
+      signal: Math.round(this.signal * 100) / 100,
+      charge: Math.round(this.charge * 100) / 100,
+      locked: this.locked,
+      angle: this.angle,
+      hotspot: this.hotspot,
+      avatar: { x: Math.round(this.avatar.x), y: Math.round(this.avatar.y) }
+    }
+  }
+
   draw(ctx: MicroGameCtx): void {
     const { ink } = ctx
     const sig = this.signal

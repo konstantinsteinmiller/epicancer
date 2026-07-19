@@ -208,6 +208,21 @@ class MosquitoSwat implements MicroGame {
     return undefined
   }
 
+  /** Dev-only view (GameScene's `__midnight.state().detail`) — live bug
+   *  positions plus whether each is inside its hit window, so an automated
+   *  session can aim and time taps instead of eyeballing screenshots. */
+  debug() {
+    return {
+      killed: this.bugs.filter((b) => b.dead).length,
+      bugs: this.bugs.map((b) => ({
+        x: Math.round(b.x),
+        y: Math.round(b.y + b.bob),
+        dead: b.dead,
+        hot: Math.abs(b.ring) <= HIT_WINDOW
+      }))
+    }
+  }
+
   draw(ctx: MicroGameCtx): void {
     this.drawArm(ctx)
     for (const l of this.lumps) this.drawLump(ctx, l)

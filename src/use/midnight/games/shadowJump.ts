@@ -18,9 +18,9 @@
 import type { MicroGame, MicroGameCtx } from '../types'
 import { NOTEBOOK, HIGHLIGHT } from '@/use/ink/palette'
 import { mulberry32, range, makeRng } from '@/use/ink/rng'
-import { phew, alarm, sizzle } from '@/use/ink/useInkAudio'
+import { phew, alarm, sizzle, penClick } from '@/use/ink/useInkAudio'
 import { inkText } from '@/use/ink/strokeFont'
-import { type Ring, makeRing, stepRing, isHot, drawRing } from '../ring'
+import { type Ring, stepRing, isHot, drawRing } from '../ring'
 import type { InkRenderer, Pt } from '@/use/ink/inkRenderer'
 
 const JUMPS_TO_WIN = 3
@@ -74,7 +74,20 @@ class ShadowJump implements MicroGame {
     this.curShadow = this.rx
     this.ryOffset = 0
     this.nextShadow = this.rx + st.w * 0.28
-    this.ring = makeRing(0, this.rng)
+    this.ring = this.nextRing()
+  }
+
+  /** Shadow's rings are SEQUENTIAL — one per jump — so it must not reuse
+   *  `makeRing`, whose index-based stagger exists to stop several SIMULTANEOUS
+   *  rings collapsing in lockstep. Borrowing it here made the first ring the
+   *  slowest (0.44/s ≈ 1.9s of dead waiting before the first leap was even
+   *  possible) and pushed a flawless run to ~6.1s — longer than the 5.83s the
+   *  clock allows once escalation reaches 1.2×, which every night hits by game
+   *  eight. That made the game unwinnable through no fault of the player. A
+   *  brisk, near-constant cadence keeps all three jumps inside the clock at
+   *  every speed a night can actually reach. */
+  private nextRing(): Ring {
+    return { ring: 1, speed: 0.78 + this.jumps * 0.06 + range(this.rng, -0.03, 0.03) }
   }
 
   update(ctx: MicroGameCtx, dt: number) {
@@ -111,7 +124,7 @@ class ShadowJump implements MicroGame {
           this.rx -= shift
           this.nextShadow -= shift
         }
-        this.ring = makeRing(this.jumps, this.rng)
+        this.ring = this.nextRing()
       }
       return undefined
     }
@@ -123,16 +136,30 @@ class ShadowJump implements MicroGame {
       const hitR = 96 * this.s
       if (d < hitR) {
         if (isHot(this.ring)) {
+          // Nailed the beat: leap to the next shadow.
           this.jumpFrom = this.rx
           this.jumpTo = this.nextShadow
           this.jump = 0
         } else {
-          this.missBurn(ctx)
+          // On the shadow but off the beat: a harmless "not yet". The ring
+          // recycles for another pass, which is the promise the shared mechanic
+          // makes (see `ring.ts`) and that hot-potato, thermometer and fan all
+          // already keep — a mistimed tap must never end the run.
+          penClick()
+          services.shake('tick')
         }
-      } else {
-        // A tap nowhere near the shadow also fails the leap (you hesitated).
-        this.missBurn(ctx)
       }
+      // A tap nowhere near the shadow is ignored entirely: a stray thumb on
+      // blank paper is not a decision the player made about this jump.
+    }
+
+    // The clock is this game's only fail state. Resolving it here rather than
+    // letting the core loop time out is what gives the melt its sizzle and
+    // alarm — `drawOutcome` renders the burned runner on any loss, so without
+    // this the animation would play silently.
+    if (ctx.remaining <= 0.0001) {
+      this.missBurn(ctx)
+      return 'lost'
     }
     return undefined
   }
@@ -140,6 +167,11 @@ class ShadowJump implements MicroGame {
   private missBurn(ctx: MicroGameCtx): void {
     this.burned = true
     this.burnAt = 0
+    // Pitch the runner off its cool shadow into the hot gap between the
+    // shadows, so the melt reads as "leapt into the heat", not a burn on the
+    // safe spot it was standing on.
+    this.rx = (this.curShadow + this.nextShadow) / 2
+    this.ryOffset = 0
     sizzle()
     alarm()
     ctx.services.shake('rip')

@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Tipp!',
-      'hint': 'Tippe 5-mal, dann öffne die Dose',
+      'hint': 'Tippe 3-mal, dann öffne die Dose',
       'spray': 'Platsch!'
     },
     'router': {

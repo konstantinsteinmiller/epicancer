@@ -235,6 +235,10 @@ class ToastTrap implements MicroGame {
     const s = this.s
     for (let i = 0; i < this.toasts.length; i++) {
       const tst = this.toasts[i]!
+      // A caught slice is safely in the mitt — it vanishes rather than lingering
+      // frozen mid-air (the DING, steam and catch pip already sell the catch).
+      // Missed slices stay on as burnt charcoal for the loss flourish.
+      if (tst.caught) continue
       ink.transformed(tst.x, tst.y, tst.rot, 1, () => {
         const burnt = tst.missed
         // Bread slice: a rounded-top square.

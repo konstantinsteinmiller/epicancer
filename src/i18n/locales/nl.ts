@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Tik!',
-      'hint': 'Tik 5 keer en trek dan het lipje',
+      'hint': 'Tik 3 keer en trek dan het lipje',
       'spray': 'Spat!'
     },
     'router': {

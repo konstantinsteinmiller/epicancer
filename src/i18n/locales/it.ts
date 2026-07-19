@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Tocca!',
-      'hint': 'Tocca 5 volte, poi apri la linguetta',
+      'hint': 'Tocca 3 volte, poi apri la linguetta',
       'spray': 'Splat!'
     },
     'router': {

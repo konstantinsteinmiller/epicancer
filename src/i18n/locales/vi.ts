@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Gõ!',
-      'hint': 'Gõ 5 lần rồi bật nắp',
+      'hint': 'Gõ 3 lần rồi bật nắp',
       'spray': 'Bắn!'
     },
     'router': {

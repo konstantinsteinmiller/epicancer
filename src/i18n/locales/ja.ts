@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'タップ！',
-      'hint': '5回タップしてタブを開ける',
+      'hint': '3回タップしてタブを開ける',
       'spray': 'ブシャ！'
     },
     'router': {

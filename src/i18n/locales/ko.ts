@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': '탭!',
-      'hint': '5번 탭하고 탭을 따',
+      'hint': '3번 탭하고 탭을 따',
       'spray': '철퍽!'
     },
     'router': {

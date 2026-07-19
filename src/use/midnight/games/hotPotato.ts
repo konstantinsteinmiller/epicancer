@@ -19,6 +19,10 @@ import { type Ring, stepRing, isHot, drawRing } from '../ring'
 import type { InkRenderer, Pt } from '@/use/ink/inkRenderer'
 
 const TOSSES_TO_WIN = 3
+/** Seconds the stone spends arcing between hands. The winning toss replays this
+ *  on the outcome clock (see `drawOutcome`) so the final throw is actually SEEN
+ *  landing in the other hand, not frozen in the hand it left. */
+const TOSS_DUR = 0.28
 /** Seconds a hand can hold before it smokes. Sized so the ring aligns TWICE
  *  inside it (see RING_SPEED): the first pass is the beat to hit, and a second
  *  pass gives a recovery chance so one fumbled tap doesn't instantly burn —
@@ -55,6 +59,10 @@ class HotPotato implements MicroGame {
   private won = false
   /** OUCH! popup timer. */
   private ouchAt = 99
+  /** True once the play phase has actually started ticking. Guards the ring
+   *  from being drawn (frozen at full size) during the briefing, before
+   *  `update` — and therefore `stepRing` — has run even once. */
+  private started = false
 
   init(ctx: MicroGameCtx, seed: number): void {
     const { ink } = ctx
@@ -72,12 +80,14 @@ class HotPotato implements MicroGame {
     this.burned = false
     this.won = false
     this.ouchAt = 99
+    this.started = false
   }
 
   private handX(side: number): number { return side < 0 ? this.leftX : this.rightX }
 
   update(ctx: MicroGameCtx, dt: number) {
     const { pointer, services } = ctx
+    this.started = true
     if (this.ouchAt < 90) this.ouchAt += dt
     if (this.burned) { this.burnAt += dt; return undefined }
     if (this.won) return undefined
@@ -105,23 +115,26 @@ class HotPotato implements MicroGame {
         const emptyX = this.handX(-this.side)
         const d = Math.hypot(pointer.x - emptyX, pointer.y - this.handY)
         const hitR = 96 * this.s
-        if (d < hitR) {
-          if (isHot(this.ring)) {
-            // Tossed on the beat.
-            this.tosses++
-            this.flightFrom = this.side
-            this.side = -this.side
-            this.flight = 0
-            this.heat = 0
-            this.ring = { ring: 1, speed: RING_SPEED }
-            this.ouchAt = 0
-            squeak()
-            services.shake('snap')
-            if (this.tosses >= TOSSES_TO_WIN) { this.won = true; return 'won' }
-          } else {
-            penClick()
-            services.shake('tick')
-          }
+        if (d < hitR && isHot(this.ring)) {
+          // Tossed on the beat.
+          this.tosses++
+          this.flightFrom = this.side
+          this.side = -this.side
+          this.flight = 0
+          this.heat = 0
+          this.ring = { ring: 1, speed: RING_SPEED }
+          this.ouchAt = 0
+          squeak()
+          services.shake('snap')
+          if (this.tosses >= TOSSES_TO_WIN) { this.won = true; return 'won' }
+        } else if (d < hitR) {
+          // On the catching hand but OFF the beat (ring hasn't collapsed): a
+          // harmless "not yet". The ring keeps contracting and recycles for
+          // another pass — a mistimed tap must never end the game. Per the spec,
+          // the ONLY failure is letting the holding hand smoke (the heat meter
+          // above). A tap nowhere near the hand is ignored entirely.
+          penClick()
+          services.shake('tick')
         }
       }
     }
@@ -148,8 +161,10 @@ class HotPotato implements MicroGame {
     this.drawHand(ctx, -1)
     this.drawHand(ctx, 1)
     this.drawStone(ctx)
-    // The ring hovers over the empty hand (target).
-    if (this.flight < 0) {
+    // The ring hovers over the empty hand (target). Only once play has started —
+    // during the briefing the ring hasn't begun contracting, and a static full
+    // ring reads as a frozen bug.
+    if (this.started && this.flight < 0) {
       const { ink } = ctx
       drawRing(ink, 'potatoring', this.handX(-this.side), this.handY, 40 * this.s, this.ring, {
         cool: 'cyan', hot: 'yellow', reach: 70 * this.s, width: 6 * this.s
@@ -160,11 +175,25 @@ class HotPotato implements MicroGame {
   }
 
   drawOutcome(ctx: MicroGameCtx, outcome: 'won' | 'lost', since: number): void {
+    if (outcome === 'won') {
+      // Finish the winning toss visually: the stone arcs OVER and lands in the
+      // catching hand, rather than freezing in the hand it was thrown from.
+      // `update` has stopped (the game is resolved), so drive the flight off the
+      // outcome clock. `flightFrom`/`side` were set at the moment of the toss.
+      this.flight = since < TOSS_DUR ? since / TOSS_DUR : -1
+    }
     this.drawFigure(ctx)
     this.drawHand(ctx, -1, outcome === 'lost' && this.burnedSide === -1 ? since : 0)
     this.drawHand(ctx, 1, outcome === 'lost' && this.burnedSide === 1 ? since : 0)
-    if (outcome === 'won') this.drawStone(ctx)
-    if (outcome === 'won' && this.ouchAt < 0.5) this.drawOuch(ctx)
+    if (outcome === 'won') {
+      this.drawStone(ctx)
+      // "OUCH!" pops over the catching hand once the stone actually lands.
+      const landed = since - TOSS_DUR
+      if (landed >= 0 && landed < 0.5) {
+        this.ouchAt = landed
+        this.drawOuch(ctx)
+      }
+    }
   }
 
   /** The stick figure body + arms reaching down to the two hands. */

@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Bos!',
-      'hint': '5 marta bosing, keyin qopqoqni oching',
+      'hint': '3 marta bosing, keyin qopqoqni oching',
       'spray': 'Sachra!'
     },
     'router': {

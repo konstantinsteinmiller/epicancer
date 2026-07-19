@@ -36,7 +36,7 @@ export default {
     },
     'soda': {
       'verb': 'Tap!',
-      'hint': 'Tap 5 times, then pop the tab',
+      'hint': 'Tap 3 times, then pop the tab',
       'spray': 'Splat!'
     },
     'router': {

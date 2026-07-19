@@ -24,7 +24,7 @@
 
 import { computed, ref, shallowRef } from 'vue'
 import type { MicroGame, MicroGameCtx, MicroGameStatus, Pointer } from './types'
-import { recordGameResult, recordNightEnd, recordBossCleared, needsHint } from '@/use/useMidnightProgress'
+import { recordGameResult, recordNightEnd, recordBossCleared, needsHint, bestScore } from '@/use/useMidnightProgress'
 import { flushSaveNow } from '@/use/useSaveStatus'
 import { setMusicRate } from '@/use/useSound'
 
@@ -52,6 +52,20 @@ const MAX_SPEED = 2.2
 const BOSS_EVERY = 10
 /** GDD §3: three hearts. */
 const MAX_HEARTS = 3
+/**
+ * How far past the standing record a night must reach before clearing the boss
+ * is allowed to end it in triumph.
+ *
+ * Without this the boss clear ended EVERY night, which capped a flawless run at
+ * 10 micro-games + the boss = 11. A player whose record was set the hard way
+ * (by failing bosses, losing a heart each time, and surviving the extra rounds)
+ * could never beat it by playing well — the game's reward for competence was to
+ * cut the run short before it could reach their own record. Holding the morning
+ * back until the night is `BEAT_RECORD_BY` past the record guarantees every run
+ * an honest shot at a new best, and keeps the sunrise as the thing that
+ * celebrates it.
+ */
+const BEAT_RECORD_BY = 2
 
 export type RunPhase =
   | 'idle'
@@ -107,6 +121,9 @@ export const useMidnightGame = (registry: {
   let bossPending = false
   let queue: MicroGame[] = []
   let seed = 1
+  /** Score this night must reach before a boss clear ends it. Snapshotted at
+   *  `start` from the record as it stood, so it can't drift mid-run. */
+  let scoreTarget = BEAT_RECORD_BY
 
   /** 0..1 heat, for garnish. Saturates at the speed cap. */
   const heat = computed(() => Math.min(1, (speed.value - 1) / (MAX_SPEED - 1)))
@@ -235,9 +252,12 @@ export const useMidnightGame = (registry: {
         if (phaseT >= JUDGMENT_S / speed.value) {
           if (hearts.value <= 0) {
             endNight()
-          } else if (lastOutcome.value === 'won' && g?.isBoss) {
+          } else if (lastOutcome.value === 'won' && g?.isBoss && score.value >= scoreTarget) {
             // Clearing the boss ends the night in triumph rather than looping
             // — the camera pulls back out to the desk (vision-board panel 8).
+            // But only once the night is far enough past the record to have
+            // earned a new one; otherwise the night rolls on and the next boss
+            // comes back around in ten games. See `BEAT_RECORD_BY`.
             endNight('morning')
           } else {
             setPhase('flip')
@@ -280,6 +300,7 @@ export const useMidnightGame = (registry: {
     played = 0
     bossPending = false
     queue = []
+    scoreTarget = bestScore.value + BEAT_RECORD_BY
     startGame(ctx)
   }
 

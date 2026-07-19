@@ -126,6 +126,21 @@ class StaticCat implements MicroGame {
     return undefined
   }
 
+  /** Dev-only view (GameScene's `__midnight.state().detail`) — spark positions
+   *  plus whether each is inside its hit window, so an automated session can
+   *  aim and time taps instead of eyeballing screenshots. */
+  debug() {
+    return {
+      killed: this.sparks.filter((sp) => sp.dead).length,
+      sparks: this.sparks.map((sp) => ({
+        x: Math.round(sp.x),
+        y: Math.round(sp.y),
+        dead: sp.dead,
+        hot: Math.abs(sp.ring) <= HIT_WINDOW
+      }))
+    }
+  }
+
   draw(ctx: MicroGameCtx): void {
     this.drawAura(ctx)
     this.drawCat(ctx)

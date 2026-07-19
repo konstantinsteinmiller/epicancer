@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Stukaj!',
-      'hint': 'Stuknij 5 razy, potem otwórz wieczko',
+      'hint': 'Stuknij 3 razy, potem otwórz wieczko',
       'spray': 'Chlast!'
     },
     'router': {

@@ -28,7 +28,7 @@ export default {
     },
     'soda': {
       'verb': 'Tıkla!',
-      'hint': '5 kez tıkla, sonra kapağı aç',
+      'hint': '3 kez tıkla, sonra kapağı aç',
       'spray': 'Şıp!'
     },
     'router': {

@@ -2,8 +2,8 @@
 //
 // vision-board-minigames §5. A crumpled, shaken soda can sits centre-page, its
 // tab vibrating, ringed by fizzing neon-pink warning bubbles. A neon-yellow
-// target zone on the side of the can invites taps: tap it 5 times to settle the
-// pressure, THEN click the tab to open it. Success = PSSSHHH + a pour stream;
+// target zone on the side of the can invites taps: tap it a few times to settle
+// the pressure, THEN click the tab to open it. Success = PSSSHHH + a pour stream;
 // too slow = the can erupts and floods the notebook in pink foam.
 //
 // ── Two-stage input ──
@@ -20,7 +20,13 @@ import { clink, pssh, penClick } from '@/use/ink/useInkAudio'
 import { inkText } from '@/use/ink/strokeFont'
 import type { Pt } from '@/use/ink/inkRenderer'
 
-const TAPS_NEEDED = 5
+// Soda is the ONLY two-stage micro-game: mash the side to settle, THEN find and
+// tap the tab. That second stage costs real reaction time no single-tap game
+// pays, so the settle can't be as long — otherwise the escalation-shortened
+// clock (down to ~baseDuration/MAX_SPEED) runs out mid-transition and a correct
+// tab tap still "loses" to the eruption timeout. Three taps keeps the mash
+// feel while leaving room to reach the tab even at full escalation.
+const TAPS_NEEDED = 3
 
 interface Bubble {
   a: number
@@ -33,7 +39,9 @@ class SodaExplode implements MicroGame {
   readonly id = 'soda'
   readonly verbKey = 'game.soda.verb'
   readonly hintKey = 'game.soda.hint'
-  readonly baseDuration = 5
+  // A touch longer than the single-action games (which sit at ~5s) because of
+  // the two-stage settle-then-open interaction above.
+  readonly baseDuration = 6
 
   private rng: () => number = Math.random
   private s = 1
@@ -261,7 +269,7 @@ class SodaExplode implements MicroGame {
     const s = this.s
     const st = ink.stage
     for (let i = 0; i < TAPS_NEEDED; i++) {
-      const cx = st.cx + (i - 2) * 34 * s
+      const cx = st.cx + (i - (TAPS_NEEDED - 1) / 2) * 34 * s
       const cy = st.y + st.h * 0.12
       const hit = i < this.taps
       ink.circle(`soda-pip${i}`, cx, cy, 11 * s, {

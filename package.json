@@ -14,6 +14,7 @@
     "build:glitch": "vite build --mode glitch --base=./ && cd dist && tar -a -cf ../midnight-analog-glitch.zip * && cd .. && move midnight-analog-glitch.zip dist\\",
     "build:game-distribution": "vite build --mode game-distribution --base=./",
     "build:playgama": "vite build --mode playgama --base=./ && cd dist && tar -a -cf ../midnight-analog-playgama.zip * && cd .. && move midnight-analog-playgama.zip dist\\",
+    "build:summerjam": "vite build --mode summerjam --base=./ && cd dist && tar -a -cf ../midnight-analog-playgama-itch.zip * && cd .. && move midnight-analog-playgama-itch.zip dist\\",
     "build:gamepix": "vite build --mode gamepix --base=./ && cd dist && tar -a -cf ../midnight-analog-gamepix.zip * && cd .. && move midnight-analog-gamepix.zip dist\\",
     "build:gamemonetize": "vite build --mode gamemonetize --base=./ && cd dist && tar -a -cf ../midnight-analog-gamemonetize.zip * && cd .. && move midnight-analog-gamemonetize.zip dist\\",
     "build:yandex": "vite build --mode yandex --base=./ && cd dist && tar -a -cf ../midnight-analog-yandex.zip * && cd .. && move midnight-analog-yandex.zip dist\\",
